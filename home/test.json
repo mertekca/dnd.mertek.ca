@@ -1,0 +1,24 @@
+{
+  "name": "Aric Shadowbane",
+  "class": "Rogue",
+  "race": "Elf",
+  "level": 5,
+  "stats": {
+    "Strength": 10,
+    "Dexterity": 18,
+    "Constitution": 14,
+    "Intelligence": 12,
+    "Wisdom": 10,
+    "Charisma": 14
+  },
+  "abilities": [
+    "Sneak Attack",
+    "Evasion",
+    "Cunning Action"
+  ],
+  "equipment": [
+    "Rapier",
+    "Shortbow",
+    "Thieves' Tools"
+  ]
+}
