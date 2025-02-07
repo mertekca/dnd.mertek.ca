@@ -6,34 +6,40 @@
     <title>D&D Character Sheet</title>
     <style>
         body {
-            font-family: "Georgia", serif;
-            background-color: #f5f5dc;
-            color: #333;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
             text-align: center;
         }
         .sheet-container {
-            max-width: 800px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 900px;
             margin: auto;
             padding: 20px;
-            background: #fff;
-            border: 2px solid #000;
+            background: white;
+            border: 2px solid black;
             box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
         }
-        h1 {
-            font-size: 24px;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
         .section {
-            border-bottom: 2px solid #000;
+            border: 1px solid black;
             padding: 10px;
-            text-align: left;
+            background: #fff;
+        }
+        .section h2 {
+            margin: 0;
+            font-size: 16px;
+            background: black;
+            color: white;
+            padding: 5px;
+            text-align: center;
         }
         .editable {
             display: inline-block;
             cursor: pointer;
             padding: 2px 5px;
             border-radius: 3px;
+            min-width: 50px;
         }
         .editable:focus {
             outline: none;
@@ -47,9 +53,12 @@
     </style>
 </head>
 <body>
+    <h1>D&D Character Sheet</h1>
+    <input type="file" id="fileInput" accept=".json"><br>
     <div class="sheet-container">
-        <h1 id="char-name" class="editable" contenteditable="false">Character Name</h1>
         <div class="section">
+            <h2>Character Info</h2>
+            <strong>Name:</strong> <span id="char-name" class="editable" contenteditable="false">Character Name</span><br>
             <strong>Class:</strong> <span id="char-class" class="editable" contenteditable="false">Rogue</span><br>
             <strong>Race:</strong> <span id="char-race" class="editable" contenteditable="false">Elf</span><br>
             <strong>Level:</strong> <span id="char-level" class="editable" contenteditable="false">5</span>
@@ -58,9 +67,12 @@
             <h2>Stats</h2>
             <div id="char-stats"></div>
         </div>
-        <button onclick="downloadCharacter()">Download JSON</button>
+        <div class="section">
+            <h2>Abilities</h2>
+            <div id="char-abilities"></div>
+        </div>
     </div>
-
+    <button onclick="downloadCharacter()">Download JSON</button>
     <script>
         document.querySelectorAll('.editable').forEach(el => {
             el.addEventListener('dblclick', () => makeEditable(el));
@@ -92,6 +104,21 @@
             downloadAnchor.click();
             document.body.removeChild(downloadAnchor);
         }
+
+        document.getElementById("fileInput").addEventListener("change", function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const data = JSON.parse(e.target.result);
+                    document.getElementById("char-name").textContent = data.name || "Character Name";
+                    document.getElementById("char-class").textContent = data.class || "Class";
+                    document.getElementById("char-race").textContent = data.race || "Race";
+                    document.getElementById("char-level").textContent = data.level || "Lvl";
+                };
+                reader.readAsText(file);
+            }
+        });
     </script>
 </body>
 </html>
