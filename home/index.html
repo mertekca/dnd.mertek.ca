@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>D&D Character Sheet Editor</title>
+    <title>D&D Character Sheet</title>
     <style>
         body {
             font-family: "Georgia", serif;
             background-color: #f5f5dc;
             color: #333;
-            padding: 20px;
             text-align: center;
         }
         .sheet-container {
@@ -23,141 +22,76 @@
         h1 {
             font-size: 24px;
             text-transform: uppercase;
+            margin-bottom: 5px;
         }
-        input, textarea {
-            width: 100%;
-            padding: 5px;
-            margin: 5px 0;
-        }
-        .stat-block, .skills, .abilities, .equipment {
-            text-align: left;
-            margin: 10px 0;
+        .section {
+            border-bottom: 2px solid #000;
             padding: 10px;
-            border: 1px solid #000;
-            background: #eee;
+            text-align: left;
         }
-        .button-container {
-            margin-top: 20px;
+        .editable {
+            display: inline-block;
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        .editable:focus {
+            outline: none;
+            background: #ddd;
         }
         button {
+            margin-top: 10px;
             padding: 10px;
-            margin: 5px;
             cursor: pointer;
         }
     </style>
 </head>
 <body>
-
-    <h1>D&D Character Sheet Editor</h1>
-
-    <div class="button-container">
-        <input type="file" id="fileInput">
+    <div class="sheet-container">
+        <h1 id="char-name" class="editable" contenteditable="false">Character Name</h1>
+        <div class="section">
+            <strong>Class:</strong> <span id="char-class" class="editable" contenteditable="false">Rogue</span><br>
+            <strong>Race:</strong> <span id="char-race" class="editable" contenteditable="false">Elf</span><br>
+            <strong>Level:</strong> <span id="char-level" class="editable" contenteditable="false">5</span>
+        </div>
+        <div class="section">
+            <h2>Stats</h2>
+            <div id="char-stats"></div>
+        </div>
         <button onclick="downloadCharacter()">Download JSON</button>
     </div>
 
-    <div class="sheet-container">
-        <h2>Character Details</h2>
-        <label>Name: <input type="text" id="char-name"></label><br>
-        <label>Class: <input type="text" id="char-class"></label><br>
-        <label>Race: <input type="text" id="char-race"></label><br>
-        <label>Background: <input type="text" id="char-background"></label><br>
-        <label>Alignment: <input type="text" id="char-alignment"></label><br>
-        <label>Level: <input type="number" id="char-level"></label><br>
-
-        <h2>Stats</h2>
-        <div id="char-stats"></div>
-
-        <h2>Skills</h2>
-        <div id="char-skills"></div>
-
-        <h2>Abilities</h2>
-        <textarea id="char-abilities" rows="4"></textarea>
-
-        <h2>Equipment</h2>
-        <textarea id="char-equipment" rows="4"></textarea>
-    </div>
-
     <script>
-        let characterData = {};
-
-        document.getElementById('fileInput').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    characterData = JSON.parse(e.target.result);
-                    populateFields(characterData);
-                } catch (error) {
-                    alert("Invalid JSON file.");
-                }
-            };
-            reader.readAsText(file);
+        document.querySelectorAll('.editable').forEach(el => {
+            el.addEventListener('dblclick', () => makeEditable(el));
+            el.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); makeUneditable(el); }});
+            el.addEventListener('blur', () => makeUneditable(el));
         });
 
-        function populateFields(data) {
-            document.getElementById("char-name").value = data.name || "";
-            document.getElementById("char-class").value = data.class || "";
-            document.getElementById("char-race").value = data.race || "";
-            document.getElementById("char-background").value = data.background || "";
-            document.getElementById("char-alignment").value = data.alignment || "";
-            document.getElementById("char-level").value = data.level || "";
-
-            let statsHTML = "";
-            for (const [stat, value] of Object.entries(data.stats || {})) {
-                statsHTML += `<label>${stat}: <input type="number" id="stat-${stat}" value="${value}"></label><br>`;
-            }
-            document.getElementById("char-stats").innerHTML = statsHTML;
-
-            let skillsHTML = "";
-            for (const [skill, bonus] of Object.entries(data.skills || {})) {
-                skillsHTML += `<label>${skill}: <input type="number" id="skill-${skill}" value="${bonus}"></label><br>`;
-            }
-            document.getElementById("char-skills").innerHTML = skillsHTML;
-
-            document.getElementById("char-abilities").value = (data.abilities || []).join("\n");
-            document.getElementById("char-equipment").value = (data.equipment || []).join("\n");
+        function makeEditable(el) {
+            el.contentEditable = true;
+            el.focus();
         }
 
-        function getUpdatedCharacter() {
-            let updatedCharacter = {
-                name: document.getElementById("char-name").value,
-                class: document.getElementById("char-class").value,
-                race: document.getElementById("char-race").value,
-                background: document.getElementById("char-background").value,
-                alignment: document.getElementById("char-alignment").value,
-                level: parseInt(document.getElementById("char-level").value) || 1,
-                stats: {},
-                skills: {},
-                abilities: document.getElementById("char-abilities").value.split("\n").filter(Boolean),
-                equipment: document.getElementById("char-equipment").value.split("\n").filter(Boolean)
-            };
-
-            document.querySelectorAll("#char-stats input").forEach(input => {
-                let statName = input.id.replace("stat-", "");
-                updatedCharacter.stats[statName] = parseInt(input.value) || 0;
-            });
-
-            document.querySelectorAll("#char-skills input").forEach(input => {
-                let skillName = input.id.replace("skill-", "");
-                updatedCharacter.skills[skillName] = parseInt(input.value) || 0;
-            });
-
-            return updatedCharacter;
+        function makeUneditable(el) {
+            el.contentEditable = false;
         }
 
         function downloadCharacter() {
-            let updatedCharacter = getUpdatedCharacter();
-            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(updatedCharacter, null, 2));
+            let character = {
+                name: document.getElementById("char-name").textContent,
+                class: document.getElementById("char-class").textContent,
+                race: document.getElementById("char-race").textContent,
+                level: document.getElementById("char-level").textContent
+            };
+            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(character, null, 2));
             let downloadAnchor = document.createElement("a");
             downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", updatedCharacter.name.replace(/\s+/g, '_') + "_sheet.json");
+            downloadAnchor.setAttribute("download", "character_sheet.json");
             document.body.appendChild(downloadAnchor);
             downloadAnchor.click();
             document.body.removeChild(downloadAnchor);
         }
     </script>
-
 </body>
 </html>
