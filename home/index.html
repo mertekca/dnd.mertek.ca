@@ -12,7 +12,7 @@
         }
         .sheet-container {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 10px;
             max-width: 900px;
             margin: auto;
@@ -50,6 +50,15 @@
             padding: 10px;
             cursor: pointer;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 5px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -59,65 +68,58 @@
         <div class="section">
             <h2>Character Info</h2>
             <strong>Name:</strong> <span id="char-name" class="editable" contenteditable="false">Character Name</span><br>
-            <strong>Class:</strong> <span id="char-class" class="editable" contenteditable="false">Class</span><br>
-            <strong>Race:</strong> <span id="char-race" class="editable" contenteditable="false">Race</span><br>
-            <strong>Level:</strong> <span id="char-level" class="editable" contenteditable="false">Lvl</span>
+            <strong>Class:</strong> <span id="char-class" class="editable" contenteditable="false">Rogue</span><br>
+            <strong>Race:</strong> <span id="char-race" class="editable" contenteditable="false">Elf</span><br>
+            <strong>Level:</strong> <span id="char-level" class="editable" contenteditable="false">5</span>
         </div>
         <div class="section">
-            <h2>Stats</h2>
-            <div id="char-stats"></div>
+            <h2>Ability Scores</h2>
+            <table>
+                <tr><th>Ability</th><th>Score</th><th>Modifier</th></tr>
+                <tr><td>Strength</td><td contenteditable="true" class="ability" data-ability="str">10</td><td id="mod-str">0</td></tr>
+                <tr><td>Dexterity</td><td contenteditable="true" class="ability" data-ability="dex">10</td><td id="mod-dex">0</td></tr>
+                <tr><td>Constitution</td><td contenteditable="true" class="ability" data-ability="con">10</td><td id="mod-con">0</td></tr>
+                <tr><td>Intelligence</td><td contenteditable="true" class="ability" data-ability="int">10</td><td id="mod-int">0</td></tr>
+                <tr><td>Wisdom</td><td contenteditable="true" class="ability" data-ability="wis">10</td><td id="mod-wis">0</td></tr>
+                <tr><td>Charisma</td><td contenteditable="true" class="ability" data-ability="cha">10</td><td id="mod-cha">0</td></tr>
+            </table>
         </div>
         <div class="section">
-            <h2>Abilities</h2>
-            <div id="char-abilities"></div>
+            <h2>Skills</h2>
+            <table>
+                <tr><th>Skill</th><th>Proficient</th><th>Bonus</th></tr>
+                <tr><td>Stealth (Dex)</td><td><input type="checkbox" class="proficiency" data-skill="stealth"></td><td id="skill-stealth">0</td></tr>
+                <tr><td>Perception (Wis)</td><td><input type="checkbox" class="proficiency" data-skill="perception"></td><td id="skill-perception">0</td></tr>
+                <tr><td>Arcana (Int)</td><td><input type="checkbox" class="proficiency" data-skill="arcana"></td><td id="skill-arcana">0</td></tr>
+            </table>
         </div>
     </div>
     <button onclick="downloadCharacter()">Download JSON</button>
     <script>
-        document.querySelectorAll('.editable').forEach(el => {
-            el.addEventListener('dblclick', () => makeEditable(el));
-            el.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); makeUneditable(el); }});
-            el.addEventListener('blur', () => makeUneditable(el));
+        document.querySelectorAll('.ability').forEach(el => {
+            el.addEventListener('input', updateModifiers);
         });
-
-        function makeEditable(el) {
-            el.contentEditable = true;
-            el.focus();
+        
+        function updateModifiers() {
+            document.querySelectorAll('.ability').forEach(el => {
+                let score = parseInt(el.textContent) || 10;
+                let modifier = Math.floor((score - 10) / 2);
+                document.getElementById(`mod-${el.dataset.ability}`).textContent = modifier;
+            });
+            updateSkills();
         }
-
-        function makeUneditable(el) {
-            el.contentEditable = false;
+        
+        function updateSkills() {
+            document.querySelectorAll('.proficiency').forEach(el => {
+                let skill = el.dataset.skill;
+                let abilityMod = parseInt(document.getElementById(`mod-${skill.split('-')[1]}`).textContent) || 0;
+                let proficiencyBonus = el.checked ? 2 : 0;
+                document.getElementById(`skill-${skill}`).textContent = abilityMod + proficiencyBonus;
+            });
         }
-
-        function downloadCharacter() {
-            let character = {
-                name: document.getElementById("char-name").textContent,
-                class: document.getElementById("char-class").textContent,
-                race: document.getElementById("char-race").textContent,
-                level: document.getElementById("char-level").textContent
-            };
-            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(character, null, 2));
-            let downloadAnchor = document.createElement("a");
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "character_sheet.json");
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            document.body.removeChild(downloadAnchor);
-        }
-
-        document.getElementById("fileInput").addEventListener("change", function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const data = JSON.parse(e.target.result);
-                    document.getElementById("char-name").textContent = data.name || "Character Name";
-                    document.getElementById("char-class").textContent = data.class || "Class";
-                    document.getElementById("char-race").textContent = data.race || "Race";
-                    document.getElementById("char-level").textContent = data.level || "Lvl";
-                };
-                reader.readAsText(file);
-            }
+        
+        document.querySelectorAll('.proficiency').forEach(el => {
+            el.addEventListener('change', updateSkills);
         });
     </script>
 </body>
