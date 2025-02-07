@@ -6,67 +6,146 @@
     <title>D&D Character Sheet</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #282c34;
-            color: white;
-            text-align: center;
+            font-family: "Georgia", serif;
+            background-color: #f5f5dc;
+            color: #333;
             padding: 20px;
+            text-align: center;
         }
-        .container {
-            max-width: 600px;
+        .sheet-container {
+            max-width: 800px;
             margin: auto;
             padding: 20px;
-            background-color: #3a3f4b;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            background: #fff;
+            border: 2px solid #000;
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            font-size: 24px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
         }
         h2 {
-            color: #f39c12;
+            font-size: 18px;
+            text-transform: uppercase;
+            border-bottom: 2px solid #000;
+            margin-top: 15px;
         }
-        ul {
-            list-style-type: none;
+        .stat-block, .skills, .abilities, .equipment {
+            text-align: left;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #000;
+            background: #eee;
+        }
+        .stat-block ul, .skills ul, .abilities ul, .equipment ul {
+            list-style: none;
             padding: 0;
         }
-        li {
+        .stat-block ul li, .skills ul li, .abilities ul li, .equipment ul li {
             padding: 5px 0;
+        }
+        .top-section {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+        }
+        .top-section div {
+            width: 30%;
+        }
+        .stat-grid {
+            display: flex;
+            justify-content: space-between;
+        }
+        .stat-grid div {
+            width: 30%;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>D&D Character Sheet</h1>
-        <div id="character"></div>
+    <div class="sheet-container">
+        <h1 id="char-name">Loading...</h1>
+        <div class="top-section">
+            <div><strong>Class:</strong> <span id="char-class"></span></div>
+            <div><strong>Race:</strong> <span id="char-race"></span></div>
+            <div><strong>Level:</strong> <span id="char-level"></span></div>
+        </div>
+        <div class="top-section">
+            <div><strong>Background:</strong> <span id="char-background"></span></div>
+            <div><strong>Alignment:</strong> <span id="char-alignment"></span></div>
+        </div>
+        
+        <h2>Stats</h2>
+        <div class="stat-grid" id="char-stats"></div>
+
+        <h2>Combat Stats</h2>
+        <div class="stat-block">
+            <ul>
+                <li><strong>Armor Class:</strong> <span id="char-ac"></span></li>
+                <li><strong>Hit Points:</strong> <span id="char-hp"></span></li>
+                <li><strong>Speed:</strong> <span id="char-speed"></span> ft.</li>
+            </ul>
+        </div>
+
+        <h2>Skills</h2>
+        <div class="skills">
+            <ul id="char-skills"></ul>
+        </div>
+
+        <h2>Abilities</h2>
+        <div class="abilities">
+            <ul id="char-abilities"></ul>
+        </div>
+
+        <h2>Equipment</h2>
+        <div class="equipment">
+            <ul id="char-equipment"></ul>
+        </div>
     </div>
 
     <script>
         async function loadCharacter() {
             try {
-                const response = await fetch("test.json");
+                const response = await fetch("character.json");
                 const character = await response.json();
 
-                let charHTML = `
-                    <h2>${character.name}</h2>
-                    <p><strong>Class:</strong> ${character.class}</p>
-                    <p><strong>Race:</strong> ${character.race}</p>
-                    <p><strong>Level:</strong> ${character.level}</p>
-                    <h3>Stats</h3>
-                    <ul>
-                        ${Object.entries(character.stats).map(([stat, value]) => `<li><strong>${stat}:</strong> ${value}</li>`).join("")}
-                    </ul>
-                    <h3>Abilities</h3>
-                    <ul>
-                        ${character.abilities.map(ability => `<li>${ability}</li>`).join("")}
-                    </ul>
-                    <h3>Equipment</h3>
-                    <ul>
-                        ${character.equipment.map(item => `<li>${item}</li>`).join("")}
-                    </ul>
-                `;
+                // Basic Info
+                document.getElementById("char-name").textContent = character.name;
+                document.getElementById("char-class").textContent = character.class;
+                document.getElementById("char-race").textContent = character.race;
+                document.getElementById("char-level").textContent = character.level;
+                document.getElementById("char-background").textContent = character.background;
+                document.getElementById("char-alignment").textContent = character.alignment;
+                document.getElementById("char-ac").textContent = character.armorClass;
+                document.getElementById("char-hp").textContent = character.hitPoints;
+                document.getElementById("char-speed").textContent = character.speed;
 
-                document.getElementById("character").innerHTML = charHTML;
+                // Stats
+                let statsHTML = "";
+                for (const [stat, value] of Object.entries(character.stats)) {
+                    statsHTML += `<div><strong>${stat.substring(0, 3).toUpperCase()}:</strong> ${value}</div>`;
+                }
+                document.getElementById("char-stats").innerHTML = statsHTML;
+
+                // Skills
+                let skillsHTML = "";
+                for (const [skill, bonus] of Object.entries(character.skills)) {
+                    skillsHTML += `<li><strong>${skill}:</strong> +${bonus}</li>`;
+                }
+                document.getElementById("char-skills").innerHTML = skillsHTML;
+
+                // Abilities
+                document.getElementById("char-abilities").innerHTML = character.abilities.map(a => `<li>${a}</li>`).join("");
+
+                // Equipment
+                document.getElementById("char-equipment").innerHTML = character.equipment.map(e => `<li>${e}</li>`).join("");
+
             } catch (error) {
-                document.getElementById("character").innerHTML = "<p>Error loading character data.</p>";
                 console.error("Error fetching character.json:", error);
             }
         }
