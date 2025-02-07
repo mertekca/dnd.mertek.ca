@@ -68,9 +68,9 @@
         <div class="section">
             <h2>Character Info</h2>
             <strong>Name:</strong> <span id="char-name" class="editable" contenteditable="false">Character Name</span><br>
-            <strong>Class:</strong> <span id="char-class" class="editable" contenteditable="false">Rogue</span><br>
-            <strong>Race:</strong> <span id="char-race" class="editable" contenteditable="false">Elf</span><br>
-            <strong>Level:</strong> <span id="char-level" class="editable" contenteditable="false">5</span>
+            <strong>Class:</strong> <span id="char-class" class="editable" contenteditable="false">Class</span><br>
+            <strong>Race:</strong> <span id="char-race" class="editable" contenteditable="false">Race</span><br>
+            <strong>Level:</strong> <span id="char-level" class="editable" contenteditable="true">5</span>
         </div>
         <div class="section">
             <h2>Ability Scores</h2>
@@ -88,39 +88,24 @@
             <h2>Skills</h2>
             <table>
                 <tr><th>Skill</th><th>Proficient</th><th>Bonus</th></tr>
-                <tr><td>Stealth (Dex)</td><td><input type="checkbox" class="proficiency" data-skill="stealth"></td><td id="skill-stealth">0</td></tr>
-                <tr><td>Perception (Wis)</td><td><input type="checkbox" class="proficiency" data-skill="perception"></td><td id="skill-perception">0</td></tr>
-                <tr><td>Arcana (Int)</td><td><input type="checkbox" class="proficiency" data-skill="arcana"></td><td id="skill-arcana">0</td></tr>
+                <script>
+                    const skills = {
+                        "Acrobatics": "dex", "Animal Handling": "wis", "Arcana": "int", "Athletics": "str",
+                        "Deception": "cha", "History": "int", "Insight": "wis", "Intimidation": "cha",
+                        "Investigation": "int", "Medicine": "wis", "Nature": "int", "Perception": "wis",
+                        "Performance": "cha", "Persuasion": "cha", "Religion": "int", "Sleight of Hand": "dex",
+                        "Stealth": "dex", "Survival": "wis"
+                    };
+                    
+                    for (const [skill, ability] of Object.entries(skills)) {
+                        document.write(`<tr><td>${skill} (${ability.toUpperCase()})</td>
+                            <td><input type="checkbox" class="proficiency" data-skill="${skill.toLowerCase().replace(/\s/g, '-')}"></td>
+                            <td id="skill-${skill.toLowerCase().replace(/\s/g, '-')}">0</td></tr>`);
+                    }
+                </script>
             </table>
         </div>
     </div>
     <button onclick="downloadCharacter()">Download JSON</button>
-    <script>
-        document.querySelectorAll('.ability').forEach(el => {
-            el.addEventListener('input', updateModifiers);
-        });
-        
-        function updateModifiers() {
-            document.querySelectorAll('.ability').forEach(el => {
-                let score = parseInt(el.textContent) || 10;
-                let modifier = Math.floor((score - 10) / 2);
-                document.getElementById(`mod-${el.dataset.ability}`).textContent = modifier;
-            });
-            updateSkills();
-        }
-        
-        function updateSkills() {
-            document.querySelectorAll('.proficiency').forEach(el => {
-                let skill = el.dataset.skill;
-                let abilityMod = parseInt(document.getElementById(`mod-${skill.split('-')[1]}`).textContent) || 0;
-                let proficiencyBonus = el.checked ? 2 : 0;
-                document.getElementById(`skill-${skill}`).textContent = abilityMod + proficiencyBonus;
-            });
-        }
-        
-        document.querySelectorAll('.proficiency').forEach(el => {
-            el.addEventListener('change', updateSkills);
-        });
-    </script>
 </body>
 </html>
