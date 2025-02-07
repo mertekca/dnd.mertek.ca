@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D Character Sheet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #282c34;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: #3a3f4b;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        h2 {
+            color: #f39c12;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            padding: 5px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>D&D Character Sheet</h1>
+        <div id="character"></div>
+    </div>
+
+    <script>
+        async function loadCharacter() {
+            try {
+                const response = await fetch("character.json");
+                const character = await response.json();
+
+                let charHTML = `
+                    <h2>${character.name}</h2>
+                    <p><strong>Class:</strong> ${character.class}</p>
+                    <p><strong>Race:</strong> ${character.race}</p>
+                    <p><strong>Level:</strong> ${character.level}</p>
+                    <h3>Stats</h3>
+                    <ul>
+                        ${Object.entries(character.stats).map(([stat, value]) => `<li><strong>${stat}:</strong> ${value}</li>`).join("")}
+                    </ul>
+                    <h3>Abilities</h3>
+                    <ul>
+                        ${character.abilities.map(ability => `<li>${ability}</li>`).join("")}
+                    </ul>
+                    <h3>Equipment</h3>
+                    <ul>
+                        ${character.equipment.map(item => `<li>${item}</li>`).join("")}
+                    </ul>
+                `;
+
+                document.getElementById("character").innerHTML = charHTML;
+            } catch (error) {
+                document.getElementById("character").innerHTML = "<p>Error loading character data.</p>";
+                console.error("Error fetching character.json:", error);
+            }
+        }
+
+        loadCharacter();
+    </script>
+
+</body>
+</html>
