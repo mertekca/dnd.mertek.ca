@@ -9,14 +9,14 @@
             font-family: 'Arial', sans-serif;
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #eaeaea;
-            margin: 0;
+            align-items: flex-start;
+            min-height: 100vh;
+            background-color: #f9f9f9;
+            padding: 20px;
         }
         .sheet-container {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1400px;
             background: white;
             padding: 20px;
             border-radius: 8px;
@@ -25,30 +25,32 @@
         }
         h2 {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed;
+            table-layout: auto;
         }
         th, td {
-            border: 1px solid #ccc;
-            padding: 12px;
-            text-align: center;
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
             font-size: 14px;
-            word-wrap: break-word;
         }
         th {
-            background-color: #004085;
+            background-color: #4a4a4a;
             color: white;
             font-weight: bold;
         }
         tr:nth-child(even) {
             background-color: #f2f2f2;
         }
-        tr:hover {
-            background-color: #d6e9f8;
+        .header-row {
+            text-align: center;
+            font-weight: bold;
+            background-color: #444;
+            color: white;
         }
     </style>
 </head>
@@ -57,16 +59,23 @@
         <h2>D&D Character Sheet</h2>
         <table id="character-table">
             <thead>
-                <tr>
+                <tr class="header-row">
                     <th>Name</th>
+                    <th>Race</th>
                     <th>Class</th>
+                    <th>Background</th>
+                    <th>Alignment</th>
                     <th>Level</th>
+                    <th>Experience</th>
                     <th>Strength</th>
                     <th>Dexterity</th>
                     <th>Constitution</th>
                     <th>Intelligence</th>
                     <th>Wisdom</th>
                     <th>Charisma</th>
+                    <th>Armor Class</th>
+                    <th>Speed</th>
+                    <th>Hit Points</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -76,7 +85,7 @@
     <script>
         async function loadCharacterSheet() {
             try {
-                const response = await fetch('test.json'); // JSON file containing character data
+                const response = await fetch('characters.json'); // JSON file containing character data
                 const data = await response.json();
                 const tableBody = document.querySelector('#character-table tbody');
                 
@@ -84,14 +93,21 @@
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${character.name}</td>
+                        <td>${character.race}</td>
                         <td>${character.class}</td>
+                        <td>${character.background}</td>
+                        <td>${character.alignment}</td>
                         <td>${character.level}</td>
+                        <td>${character.experience}</td>
                         <td>${character.strength}</td>
                         <td>${character.dexterity}</td>
                         <td>${character.constitution}</td>
                         <td>${character.intelligence}</td>
                         <td>${character.wisdom}</td>
                         <td>${character.charisma}</td>
+                        <td>${character.armor_class}</td>
+                        <td>${character.speed}</td>
+                        <td>${character.hit_points}</td>
                     `;
                     tableBody.appendChild(row);
                 });
