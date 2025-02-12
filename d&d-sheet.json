@@ -127,7 +127,7 @@
       "copperPeices": 0,
       "silverPeices": 0,
       "electrumPeices": 0,
-      "goldPeices": 0,
+      "goldPeices": 10,
       "platinumPeices": 0
     },
     "equipment": {
@@ -148,22 +148,28 @@
            "amount": 20,
            "weight": 0.1,
            "notes": "Straight from the Ground"
-         },
+        },
         "taco": {
            "amount": 20,
            "weight": 0.1,
            "notes": "Magical Taco from Han Foe"
-         },
+        },
         "leaf": {
            "amount": 20,
            "weight": 0,
            "notes": "Straight from a Tree"
-         },
+        },
         "Quaal's Magic Feather": {
            "amount": 1,
            "weight": 0,
            "notes": "Turns into the type of tree you're thinking of when it hits the ground"
-         }
+        }
+      },
+      "beltPouch": {
+      },
+      "quiver": {
+      },
+      "saddleBag":{
       }
     }
   }
