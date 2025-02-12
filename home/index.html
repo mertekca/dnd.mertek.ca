@@ -5,118 +5,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>D&D Character Sheet</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            background-color: #f9f9f9;
-            padding: 20px;
-        }
-        .sheet-container {
-            width: 100%;
-            max-width: 1400px;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            overflow-x: auto;
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: auto;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-            font-size: 14px;
-        }
-        th {
-            background-color: #4a4a4a;
-            color: white;
-            font-weight: bold;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        .header-row {
-            text-align: center;
-            font-weight: bold;
-            background-color: #444;
-            color: white;
-        }
+        body { font-family: Arial, sans-serif; }
+        .container { max-width: 800px; margin: auto; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+        td[contenteditable="true"] { background-color: #f0f0f0; }
     </style>
 </head>
 <body>
-    <div class="sheet-container">
-        <h2>D&D Character Sheet</h2>
-        <table id="character-table">
-            <thead>
-                <tr class="header-row">
-                    <th>Name</th>
-                    <th>Race</th>
-                    <th>Class</th>
-                    <th>Background</th>
-                    <th>Alignment</th>
-                    <th>Level</th>
-                    <th>Experience</th>
-                    <th>Strength</th>
-                    <th>Dexterity</th>
-                    <th>Constitution</th>
-                    <th>Intelligence</th>
-                    <th>Wisdom</th>
-                    <th>Charisma</th>
-                    <th>Armor Class</th>
-                    <th>Speed</th>
-                    <th>Hit Points</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+    <div class="container">
+        <h2>D&D Character Sheet Editor</h2>
+        <input type="file" id="fileInput" accept=".json">
+        <button onclick="downloadJSON()">Download Edited JSON</button>
+        <div id="characterSheet"></div>
     </div>
 
     <script>
-        async function loadCharacterSheet() {
-            try {
-                const response = await fetch('characters.json'); // JSON file containing character data
-                const data = await response.json();
-                const tableBody = document.querySelector('#character-table tbody');
-                
-                data.characters.forEach(character => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${character.name}</td>
-                        <td>${character.race}</td>
-                        <td>${character.class}</td>
-                        <td>${character.background}</td>
-                        <td>${character.alignment}</td>
-                        <td>${character.level}</td>
-                        <td>${character.experience}</td>
-                        <td>${character.strength}</td>
-                        <td>${character.dexterity}</td>
-                        <td>${character.constitution}</td>
-                        <td>${character.intelligence}</td>
-                        <td>${character.wisdom}</td>
-                        <td>${character.charisma}</td>
-                        <td>${character.armor_class}</td>
-                        <td>${character.speed}</td>
-                        <td>${character.hit_points}</td>
-                    `;
-                    tableBody.appendChild(row);
+        let characterData = {};
+
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    characterData = JSON.parse(e.target.result);
+                    displayCharacterSheet();
+                } catch (error) {
+                    alert("Invalid JSON file.");
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        function displayCharacterSheet() {
+            const container = document.getElementById("characterSheet");
+            container.innerHTML = ""; // Clear existing content
+            
+            function createEditableRow(key, value, parent) {
+                const row = document.createElement("tr");
+                const keyCell = document.createElement("td");
+                keyCell.textContent = key;
+                const valueCell = document.createElement("td");
+                valueCell.textContent = value;
+                valueCell.setAttribute("contenteditable", "true");
+                valueCell.addEventListener("blur", function() {
+                    parent[key] = isNaN(valueCell.textContent) ? valueCell.textContent : Number(valueCell.textContent);
                 });
-            } catch (error) {
-                console.error('Error loading character sheet:', error);
+                row.appendChild(keyCell);
+                row.appendChild(valueCell);
+                return row;
             }
+
+            function createTable(data, parent) {
+                const table = document.createElement("table");
+                for (const key in data) {
+                    if (typeof data[key] === "object" && !Array.isArray(data[key])) {
+                        const row = document.createElement("tr");
+                        const header = document.createElement("th");
+                        header.setAttribute("colspan", "2");
+                        header.textContent = key;
+                        row.appendChild(header);
+                        table.appendChild(row);
+                        table.appendChild(createTable(data[key], data[key]));
+                    } else {
+                        table.appendChild(createEditableRow(key, data[key], parent));
+                    }
+                }
+                return table;
+            }
+            container.appendChild(createTable(characterData.main, characterData.main));
         }
 
-        loadCharacterSheet();
+        function downloadJSON() {
+            const dataStr = JSON.stringify(characterData, null, 4);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "edited_character.json";
+            a.click();
+            URL.revokeObjectURL(url);
+        }
     </script>
 </body>
 </html>
