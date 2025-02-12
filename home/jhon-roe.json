@@ -1,0 +1,86 @@
+{
+  "title": "D&D Sheet",
+  "core": {
+    "name": "Jhon Roe",
+    "class": "barbarian",
+    "race": "Mountain Dwarf",
+    "background": "Depressed",
+    "alignment": "Neutral",
+    "gender": "Male",
+    "deity": "None"
+    "age": "27",
+    "weight": "50kg",
+    "height": "1.2m",
+    "level": 5
+  },
+  "combat": {
+    "hitPoints": 38,
+    "armorClass": 15,
+    "speed": 30
+  },
+  "stats": {
+    "strength": {
+      "score": 16,
+      "saving prof": 1,
+      "saving misc": 0
+    },
+    "dexterity": {
+      "score": 13,
+      "saving prof": 0,
+      "saving misc": 0
+    },
+    "constitution": {
+      "score": 15,
+      "saving prof": 1,
+      "saving misc": 0
+    },
+    "inteligence": {
+      "score": 10,
+      "saving prof": 0,
+      "saving misc": 0
+    },
+    "wisdom": {
+      "score": 10,
+      "saving prof": 0,
+      "saving misc": 0
+    },
+    "charisma": {
+      "score": 12,
+      "saving prof": 0,
+      "saving misc": 0
+    }
+  },
+  "skillsprof": {
+    "ACROBATICS": 0,
+    "ANIMAL HANDALING": 0,
+    "ARCANA": 0,
+    "ATHLETICS": 1,
+    "DECECPTION": 0,
+    "HISTORY": 0,
+    "INSIGHT": 0,
+    "INTIMIDATION": 0,
+    "INVESTIGATION": 0,
+    "MEDICINE": 0,
+    "NATURE": 0,
+    "PERCEPTION": 0,
+    "PERFORMANCE": 0,
+    "PERSUATION": 0,
+    "RELIGON": 0,
+    "SLEIGHT OF HAND": 0,
+    "STEALTH": 0,
+    "SURVIVAL": 1
+  },
+  "abilities": [
+    "Sneak Attack",
+    "Evasion",
+    "Cunning Action",
+    "Uncanny Dodge"
+  ],
+  "equipment": [
+    "Rapier",
+    "Shortbow",
+    "Thieves' Tools",
+    "Leather Armor",
+    "Dagger"
+  ]
+}
