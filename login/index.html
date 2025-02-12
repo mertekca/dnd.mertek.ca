@@ -1,1 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-auth.js"></script>
+</head>
+<body>
+    <h2>Login</h2>
+    <button id="google-login-btn">Login with Google</button>
+    <p id="login-status"></p>
 
+    <script>
+        const googleLoginButton = document.getElementById('google-login-btn');
+        const loginStatus = document.getElementById('login-status');
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyBtugHGiEF4zA3h7cBJwtOp_CRj84t2Z88",
+          authDomain: "mertek-dnd-site.firebaseapp.com",
+          projectId: "mertek-dnd-site",
+          storageBucket: "mertek-dnd-site.firebasestorage.app",
+          messagingSenderId: "62404268441",
+          appId: "1:62404268441:web:edc1070ec1da54e5e08308",
+          measurementId: "G-1N6NH3NKN5"
+        }
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // Set up Google Auth Provider
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        googleLoginButton.addEventListener('click', () => {
+            auth.signInWithPopup(provider)
+                .then(result => {
+                    const user = result.user;
+                    loginStatus.textContent = `Welcome, ${user.displayName}!`;
+                    // Redirect to the file selection page
+                    window.location.href = "fileSelection.html";
+                    // Optionally, store the user data in localStorage
+                    localStorage.setItem("user", JSON.stringify(user));
+                })
+                .catch(error => {
+                    loginStatus.textContent = `Error: ${error.message}`;
+                });
+        });
+    </script>
+</body>
+</html>
