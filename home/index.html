@@ -13,8 +13,8 @@
         .full-width { grid-column: span 3; }
         .section { border: 2px solid black; padding: 10px; border-radius: 5px; background: #eae0c8; }
         .section h3 { text-align: center; margin-top: 0; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+        table { width: 100%; border-collapse: collapse; text-align: center; }
+        th, td { border: 1px solid black; padding: 8px; }
         td[contenteditable="true"] { background-color: #f0f0f0; }
     </style>
 </head>
@@ -54,50 +54,48 @@
             const container = document.getElementById("characterSheet");
             container.innerHTML = "";
             
-            function createEditableRow(key, value, parent) {
-                const row = document.createElement("tr");
-                const keyCell = document.createElement("td");
-                keyCell.textContent = formatKeyName(key);
-                const valueCell = document.createElement("td");
-                valueCell.textContent = value;
-                valueCell.setAttribute("contenteditable", "true");
-                valueCell.addEventListener("blur", function() {
-                    parent[key] = isNaN(valueCell.textContent) ? valueCell.textContent : Number(valueCell.textContent);
-                });
-                row.appendChild(keyCell);
-                row.appendChild(valueCell);
-                return row;
-            }
-
-            function createSection(title, data, parent, fullWidth = false) {
+            function createAbilityScoresSection() {
                 const section = document.createElement("div");
                 section.classList.add("section");
-                if (fullWidth) section.classList.add("full-width");
+                section.classList.add("full-width");
                 const header = document.createElement("h3");
-                header.textContent = title;
+                header.textContent = "Ability Scores";
                 section.appendChild(header);
                 const table = document.createElement("table");
-                for (const key in data) {
-                    if (typeof data[key] === "object" && !Array.isArray(data[key])) {
-                        section.appendChild(createSection(formatKeyName(key), data[key], data[key]));
-                    } else {
-                        table.appendChild(createEditableRow(key, data[key], parent));
-                    }
+                
+                const headerRow = document.createElement("tr");
+                ["Ability", "Score", "Modifier"].forEach(text => {
+                    const th = document.createElement("th");
+                    th.textContent = text;
+                    headerRow.appendChild(th);
+                });
+                table.appendChild(headerRow);
+                
+                for (const key in characterData.main.stats) {
+                    const row = document.createElement("tr");
+                    const keyCell = document.createElement("td");
+                    keyCell.textContent = formatKeyName(key);
+                    
+                    const scoreCell = document.createElement("td");
+                    scoreCell.textContent = characterData.main.stats[key];
+                    scoreCell.setAttribute("contenteditable", "true");
+                    scoreCell.addEventListener("blur", function() {
+                        characterData.main.stats[key] = Number(scoreCell.textContent);
+                    });
+                    
+                    const modCell = document.createElement("td");
+                    modCell.textContent = Math.floor((characterData.main.stats[key] - 10) / 2);
+                    
+                    row.appendChild(keyCell);
+                    row.appendChild(scoreCell);
+                    row.appendChild(modCell);
+                    table.appendChild(row);
                 }
                 section.appendChild(table);
                 return section;
             }
 
-            container.appendChild(createSection("Core Information", characterData.main.core, characterData.main.core, true));
-            container.appendChild(createSection("Ability Scores", characterData.main.stats, characterData.main.stats));
-            container.appendChild(createSection("Saving Throws", characterData.main.core.savingThrows, characterData.main.core.savingThrows));
-            container.appendChild(createSection("Skills", characterData.main.skillsprof, characterData.main.skillsprof, true));
-            container.appendChild(createSection("Combat Stats", characterData.main.combat, characterData.main.combat, true));
-            container.appendChild(createSection("Weapons & Spells", characterData.main.weapons, characterData.main.weapons, true));
-            container.appendChild(createSection("Special Attacks", { list: characterData.main.specialAttacks.join(", ") }, characterData.main));
-            container.appendChild(createSection("Special Defenses", { list: characterData.main.specialDefences.join(", ") }, characterData.main));
-            container.appendChild(createSection("Wealth", characterData.equipmentAndWealth.wealth, characterData.equipmentAndWealth.wealth));
-            container.appendChild(createSection("Equipment", characterData.equipmentAndWealth.equipment, characterData.equipmentAndWealth.equipment, true));
+            container.appendChild(createAbilityScoresSection());
         }
 
         function downloadJSON() {
