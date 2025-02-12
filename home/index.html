@@ -54,6 +54,33 @@
             const container = document.getElementById("characterSheet");
             container.innerHTML = "";
             
+            function createCoreInfoSection() {
+                const section = document.createElement("div");
+                section.classList.add("section");
+                section.classList.add("full-width");
+                const header = document.createElement("h3");
+                header.textContent = "Core Information";
+                section.appendChild(header);
+                const table = document.createElement("table");
+                
+                for (const key in characterData.main.core) {
+                    const row = document.createElement("tr");
+                    const keyCell = document.createElement("td");
+                    keyCell.textContent = formatKeyName(key);
+                    const valueCell = document.createElement("td");
+                    valueCell.textContent = characterData.main.core[key];
+                    valueCell.setAttribute("contenteditable", "true");
+                    valueCell.addEventListener("blur", function() {
+                        characterData.main.core[key] = valueCell.textContent;
+                    });
+                    row.appendChild(keyCell);
+                    row.appendChild(valueCell);
+                    table.appendChild(row);
+                }
+                section.appendChild(table);
+                return section;
+            }
+
             function createAbilityScoresSection() {
                 const section = document.createElement("div");
                 section.classList.add("section");
@@ -77,14 +104,14 @@
                     keyCell.textContent = formatKeyName(key);
                     
                     const scoreCell = document.createElement("td");
-                    scoreCell.textContent = characterData.main.stats[key];
+                    scoreCell.textContent = characterData.main.stats[key].score;
                     scoreCell.setAttribute("contenteditable", "true");
                     scoreCell.addEventListener("blur", function() {
-                        characterData.main.stats[key] = Number(scoreCell.textContent);
+                        characterData.main.stats[key].score = Number(scoreCell.textContent);
                     });
                     
                     const modCell = document.createElement("td");
-                    modCell.textContent = Math.floor((characterData.main.stats[key] - 10) / 2);
+                    modCell.textContent = Math.floor((characterData.main.stats[key].score - 10) / 2);
                     
                     row.appendChild(keyCell);
                     row.appendChild(scoreCell);
@@ -95,6 +122,7 @@
                 return section;
             }
 
+            container.appendChild(createCoreInfoSection());
             container.appendChild(createAbilityScoresSection());
         }
 
