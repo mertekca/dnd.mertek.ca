@@ -81,17 +81,43 @@
     "stealth": 0,
     "survival": 1
   },
-  "abilities": [
-    "Sneak Attack",
-    "Evasion",
-    "Cunning Action",
-    "Uncanny Dodge"
+  "specialAttacks": [
+    "Rage (+2 Damage) (2 max per rest) (2 left)",
+    "Reckless attack (Avantage on attack rolls for self and enemy)"
   ],
-  "equipment": [
-    "Rapier",
-    "Shortbow",
-    "Thieves' Tools",
-    "Leather Armor",
-    "Dagger"
-  ]
+  "specialDefences": [
+    "Danger sense (Advantage rolls on sensing traps)"
+  ],
+  "weapons": {
+    "Greataxe": {
+      "amount": 1,
+      "hit": "+5",
+      "damage": {
+        "dice": "d12",
+        "diceAmount": 1,
+        "bonusDamage": 3
+      },
+      "range": 5,
+      "type": "slashing",
+      "notes": [
+        "Heavy",
+        "Two-Handed"
+      ]
+    },
+    "Handaxe": {
+      "amount": 2,
+      "hit": "+3",
+      "damage": {
+        "dice": "d6",
+        "diceAmount": 1,
+        "bonusDamage": 3
+      },
+      "range": 5,
+      "type": "slashing",
+      "notes": [
+        "Light",
+        "Thrown"
+      ]
+    }
+  }
 }
