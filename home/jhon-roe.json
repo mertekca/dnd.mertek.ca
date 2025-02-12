@@ -21,54 +21,54 @@
   "stats": {
     "strength": {
       "score": 16,
-      "saving prof": 1,
-      "saving misc": 0
+      "savingProf": 1,
+      "savingMisc": 0
     },
     "dexterity": {
       "score": 13,
-      "saving prof": 0,
-      "saving misc": 0
+      "savingProf": 0,
+      "savingMisc": 0
     },
     "constitution": {
       "score": 15,
-      "saving prof": 1,
-      "saving misc": 0
+      "savingProf": 1,
+      "savingMisc": 0
     },
     "inteligence": {
       "score": 10,
-      "saving prof": 0,
-      "saving misc": 0
+      "savingProf": 0,
+      "savingMisc": 0
     },
     "wisdom": {
       "score": 10,
-      "saving prof": 0,
-      "saving misc": 0
+      "savingProf": 0,
+      "savingMisc": 0
     },
     "charisma": {
       "score": 12,
-      "saving prof": 0,
-      "saving misc": 0
+      "savingProf": 0,
+      "savingMisc": 0
     }
   },
   "skillsprof": {
-    "ACROBATICS": 0,
-    "ANIMAL HANDALING": 0,
-    "ARCANA": 0,
-    "ATHLETICS": 1,
-    "DECECPTION": 0,
-    "HISTORY": 0,
-    "INSIGHT": 0,
-    "INTIMIDATION": 0,
-    "INVESTIGATION": 0,
-    "MEDICINE": 0,
-    "NATURE": 0,
-    "PERCEPTION": 0,
-    "PERFORMANCE": 0,
-    "PERSUATION": 0,
-    "RELIGON": 0,
-    "SLEIGHT OF HAND": 0,
-    "STEALTH": 0,
-    "SURVIVAL": 1
+    "acrobatics": 0,
+    "animalHandling": 0,
+    "arcana": 0,
+    "athletics": 1,
+    "deception": 0,
+    "history": 0,
+    "insight": 0,
+    "intimidation": 0,
+    "investigation": 0,
+    "medicine": 0,
+    "nature": 0,
+    "perception": 0,
+    "performance": 0,
+    "persuation": 0,
+    "religion": 0,
+    "sleightOfHand": 0,
+    "stealth": 0,
+    "survival": 1
   },
   "abilities": [
     "Sneak Attack",
