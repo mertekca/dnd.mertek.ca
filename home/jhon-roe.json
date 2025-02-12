@@ -23,6 +23,10 @@
     "deathSaves": {
       "success": 0,
       "failure": 0
+    },
+    "ammunition": {
+      "arrows": 0,
+      "bullets": 0
     }
   },
   "stats": {
