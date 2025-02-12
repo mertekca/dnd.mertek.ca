@@ -14,9 +14,16 @@
     "level": 5
   },
   "combat": {
-    "hitPoints": 38,
+    "maxHitPoints": 23,
+    "currentHitPoints": 23,
+    "temporaryHitPoints": 0,
     "armorClass": 15,
-    "speed": 30
+    "speed": 30,
+    "hitDice": "d12",
+    "deathSaves": {
+      "success": 0,
+      "failure": 0
+    }
   },
   "stats": {
     "strength": {
