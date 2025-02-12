@@ -12,7 +12,8 @@
       "age": "27",
       "weight": "50kg",
       "height": "1.2m",
-      "level": 5
+      "level": 5,
+      "experience": 0
     },
     "combat": {
       "maxHitPoints": 23,
