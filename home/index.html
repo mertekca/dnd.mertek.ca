@@ -5,19 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>D&D Character Sheet</title>
     <style>
-        body { font-family: Arial, sans-serif; }
-        .container { max-width: 800px; margin: auto; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        body { font-family: 'Georgia', serif; background-color: #f4f1de; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); }
+        h2 { text-align: center; }
+        input, button { display: block; margin: 10px auto; padding: 10px; font-size: 16px; }
+        .char-sheet { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .section { border: 2px solid black; padding: 10px; border-radius: 5px; background: #eae0c8; }
+        .section h3 { text-align: center; margin-top: 0; }
+        table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid black; padding: 8px; text-align: left; }
         td[contenteditable="true"] { background-color: #f0f0f0; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>D&D Character Sheet Editor</h2>
+        <h2>D&D Character Sheet</h2>
         <input type="file" id="fileInput" accept=".json">
         <button onclick="downloadJSON()">Download Edited JSON</button>
-        <div id="characterSheet"></div>
+        <div id="characterSheet" class="char-sheet"></div>
     </div>
 
     <script>
@@ -40,7 +45,7 @@
 
         function displayCharacterSheet() {
             const container = document.getElementById("characterSheet");
-            container.innerHTML = ""; // Clear existing content
+            container.innerHTML = "";
             
             function createEditableRow(key, value, parent) {
                 const row = document.createElement("tr");
@@ -57,24 +62,28 @@
                 return row;
             }
 
-            function createTable(data, parent) {
+            function createSection(title, data, parent) {
+                const section = document.createElement("div");
+                section.classList.add("section");
+                const header = document.createElement("h3");
+                header.textContent = title;
+                section.appendChild(header);
                 const table = document.createElement("table");
                 for (const key in data) {
                     if (typeof data[key] === "object" && !Array.isArray(data[key])) {
-                        const row = document.createElement("tr");
-                        const header = document.createElement("th");
-                        header.setAttribute("colspan", "2");
-                        header.textContent = key;
-                        row.appendChild(header);
-                        table.appendChild(row);
-                        table.appendChild(createTable(data[key], data[key]));
+                        section.appendChild(createSection(key, data[key], data[key]));
                     } else {
                         table.appendChild(createEditableRow(key, data[key], parent));
                     }
                 }
-                return table;
+                section.appendChild(table);
+                return section;
             }
-            container.appendChild(createTable(characterData.main, characterData.main));
+
+            container.appendChild(createSection("Core Stats", characterData.main.core, characterData.main.core));
+            container.appendChild(createSection("Combat Stats", characterData.main.combat, characterData.main.combat));
+            container.appendChild(createSection("Abilities", characterData.main.stats, characterData.main.stats));
+            container.appendChild(createSection("Skills", characterData.main.skillsprof, characterData.main.skillsprof));
         }
 
         function downloadJSON() {
