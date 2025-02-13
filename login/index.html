@@ -12,10 +12,12 @@
     <button id="google-login-btn">Login with Google</button>
     <p id="login-status"></p>
 
-    <script>
-        const googleLoginButton = document.getElementById('google-login-btn');
-        const loginStatus = document.getElementById('login-status');
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js';
+        import { getAuth, signInWithPopup, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/9.14.0/firebase-auth.js';
 
+        // Firebase config
         const firebaseConfig = {
           apiKey: "AIzaSyBtugHGiEF4zA3h7cBJwtOp_CRj84t2Z88",
           authDomain: "mertek-dnd-site.firebaseapp.com",
@@ -24,16 +26,19 @@
           messagingSenderId: "62404268441",
           appId: "1:62404268441:web:edc1070ec1da54e5e08308",
           measurementId: "G-1N6NH3NKN5"
-        }
+        };
 
-        const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
 
-        // Set up Google Auth Provider
-        const provider = new firebase.auth.GoogleAuthProvider();
+        // Handle login button click
+        const googleLoginButton = document.getElementById('google-login-btn');
+        const loginStatus = document.getElementById('login-status');
 
         googleLoginButton.addEventListener('click', () => {
-            auth.signInWithPopup(provider)
+            signInWithPopup(auth, provider)
                 .then(result => {
                     const user = result.user;
                     loginStatus.textContent = `Welcome, ${user.displayName}!`;
