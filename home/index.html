@@ -8,7 +8,6 @@
         body { font-family: 'Georgia', serif; background-color: #f4f1de; margin: 0; padding: 20px; }
         .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); }
         h2 { text-align: center; }
-        input, button { display: block; margin: 10px auto; padding: 10px; font-size: 16px; }
         .char-sheet { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .section { border: 2px solid black; padding: 10px; border-radius: 5px; background: #eae0c8; }
         .section h3 { text-align: center; margin-top: 0; }
@@ -20,36 +19,51 @@
 <body>
     <div class="container">
         <h2 id="characterTitle">D&D Character Sheet</h2>
-        <input type="file" id="fileInput" accept=".json">
-        <button onclick="downloadJSON()">Download Edited JSON</button>
+        <button id="loadCharacterButton">Load Character</button>
         <div id="characterSheet" class="char-sheet"></div>
     </div>
 
-    <script>
-        let characterData = {};
+    <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js"></script>
 
-        document.getElementById('fileInput').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    characterData = JSON.parse(e.target.result);
-                    document.getElementById("pageTitle").textContent = `D&D Character Sheet - ${characterData.title}`;
-                    document.getElementById("characterTitle").textContent = characterData.title;
-                    displayCharacterSheet();
-                } catch (error) {
-                    alert("Invalid JSON file.");
-                }
-            };
-            reader.readAsText(file);
-        });
+    <script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyBtugHGiEF4zA3h7cBJwtOp_CRj84t2Z88",
+          authDomain: "mertek-dnd-site.firebaseapp.com",
+          projectId: "mertek-dnd-site",
+          storageBucket: "mertek-dnd-site.appspot.com",
+          messagingSenderId: "62404268441",
+          appId: "1:62404268441:web:edc1070ec1da54e5e08308",
+          measurementId: "G-1N6NH3NKN5"
+        };
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const user = JSON.parse(localStorage.getItem("user"));
+
+        document.getElementById("loadCharacterButton").addEventListener("click", loadCharacter);
+
+        async function loadCharacter() {
+            const characterRef = db.collection('characters').doc(user.uid); // User-based character
+            const doc = await characterRef.get();
+            
+            if (doc.exists) {
+                const characterData = doc.data();
+                document.getElementById("pageTitle").textContent = `D&D Character Sheet - ${characterData.main.core.name}`;
+                document.getElementById("characterTitle").textContent = characterData.main.core.name;
+                displayCharacterSheet(characterData);
+            } else {
+                alert("No character data found!");
+            }
+        }
 
         function formatKeyName(key) {
             return key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) { return str.toUpperCase(); }).trim();
         }
 
-        function displayCharacterSheet() {
+        function displayCharacterSheet(characterData) {
             const container = document.getElementById("characterSheet");
             container.innerHTML = "";
             
@@ -62,6 +76,7 @@
                 valueCell.setAttribute("contenteditable", "true");
                 valueCell.addEventListener("blur", function() {
                     parent[key] = isNaN(valueCell.textContent) ? valueCell.textContent : Number(valueCell.textContent);
+                    saveCharacterData(characterData);
                 });
                 row.appendChild(keyCell);
                 row.appendChild(valueCell);
@@ -86,6 +101,7 @@
                 return section;
             }
 
+            // Dynamically generate the sections of the character sheet
             container.appendChild(createSection("Core Stats", characterData.main.core, characterData.main.core));
             container.appendChild(createSection("Combat Stats", characterData.main.combat, characterData.main.combat));
             container.appendChild(createSection("Abilities", characterData.main.stats, characterData.main.stats));
@@ -94,15 +110,10 @@
             container.appendChild(createSection("Equipment", characterData.equipmentAndWealth.equipment, characterData.equipmentAndWealth.equipment));
         }
 
-        function downloadJSON() {
-            const dataStr = JSON.stringify(characterData, null, 4);
-            const blob = new Blob([dataStr], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "edited_character.json";
-            a.click();
-            URL.revokeObjectURL(url);
+        async function saveCharacterData(characterData) {
+            const characterRef = db.collection('characters').doc(user.uid); // Save based on the logged-in user
+            await characterRef.set(characterData);
+            console.log("Character data saved successfully!");
         }
     </script>
 </body>
