@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Selection</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .file-list {
+            margin-bottom: 20px;
+        }
+        .file-item {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .file-item button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .file-item button:hover {
+            background-color: #0056b3;
+        }
+        #create-file-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        #create-file-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Choose or Create a D&D Character Sheet</h2>
+
+        <!-- Button to create a new file -->
+        <button id="create-file-btn">Create New File</button>
+
+        <!-- Display list of existing files -->
+        <div class="file-list" id="file-list"></div>
+
+        <p id="status"></p>
+    </div>
+
+    <script>
+        // Get the current user from localStorage
+        const user = JSON.parse(localStorage.getItem("user"));
+
+        if (!user) {
+            window.location.href = "index.html";  // Redirect if no user is logged in
+        }
+
+        const createFileButton = document.getElementById("create-file-btn");
+        const fileListContainer = document.getElementById("file-list");
+        const statusMessage = document.getElementById("status");
+
+        // Load saved files from localStorage
+        function loadFiles() {
+            const files = JSON.parse(localStorage.getItem("files")) || [];
+            fileListContainer.innerHTML = "";  // Clear previous file list
+
+            if (files.length === 0) {
+                fileListContainer.innerHTML = "<p>No files found. Please create one.</p>";
+            } else {
+                files.forEach((file, index) => {
+                    const fileItem = document.createElement("div");
+                    fileItem.classList.add("file-item");
+
+                    fileItem.innerHTML = `
+                        <span>${file.title}</span>
+                        <button onclick="selectFile(${index})">Select</button>
+                        <button onclick="deleteFile(${index})">Delete</button>
+                    `;
+                    fileListContainer.appendChild(fileItem);
+                });
+            }
+        }
+
+        // Create a new file and add it to localStorage
+        createFileButton.addEventListener("click", () => {
+            const newFile = {
+                title: `D&D Sheet for ${user.displayName} - ${new Date().toLocaleString()}`,
+                content: {}  // Empty content to start
+            };
+
+            // Get files from localStorage and add new file
+            const files = JSON.parse(localStorage.getItem("files")) || [];
+            files.push(newFile);
+
+            // Save updated files to localStorage
+            localStorage.setItem("files", JSON.stringify(files));
+
+            // Notify the user
+            statusMessage.textContent = `New file "${newFile.title}" created successfully!`;
+
+            // Reload the file list
+            loadFiles();
+        });
+
+        // Select a file and redirect to the file's page (you can modify this part)
+        function selectFile(index) {
+            const files = JSON.parse(localStorage.getItem("files"));
+            const selectedFile = files[index];
+
+            // Store selected file in localStorage for use in another page
+            localStorage.setItem("selectedFile", JSON.stringify(selectedFile));
+
+            // Redirect to the file editing page (or any other page you want)
+            window.location.href = "fileEditor.html";
+        }
+
+        // Delete a file from localStorage
+        function deleteFile(index) {
+            const files = JSON.parse(localStorage.getItem("files"));
+            files.splice(index, 1);  // Remove the file
+
+            // Save the updated list back to localStorage
+            localStorage.setItem("files", JSON.stringify(files));
+
+            // Reload the file list
+            loadFiles();
+        }
+
+        // Load the files when the page loads
+        loadFiles();
+    </script>
+</body>
+</html>
