@@ -67,7 +67,7 @@
     </div>
 
     <div class="footer">
-        <p>&copy; 2025 My D&D Site | All rights reserved.</p>
+        <p>&copy; 2025 MerTek D&D Site. All rights reserved.</p>
     </div>
 
     <script type="module">
@@ -99,7 +99,7 @@
                     const user = result.user;
                     loginStatus.textContent = `Welcome, ${user.displayName}!`;
                     // Redirect to the file selection page
-                    window.location.href = "fileSelection.html";
+                    window.location.href = "/file-select";
                     // Store user data in localStorage
                     localStorage.setItem("user", JSON.stringify(user));
                 })
