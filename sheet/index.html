@@ -23,11 +23,13 @@
         <div id="characterSheet" class="char-sheet"></div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js"></script>
+    <!-- Firebase App and SDK with module support -->
+    <script type="module">
+        // Import Firebase SDK modules using ES6 import
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/9.14.0/firebase-auth.js';
+        import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/9.14.0/firebase-firestore.js';
 
-    <script>
         const firebaseConfig = {
           apiKey: "AIzaSyBtugHGiEF4zA3h7cBJwtOp_CRj84t2Z88",
           authDomain: "mertek-dnd-site.firebaseapp.com",
@@ -38,20 +40,22 @@
           measurementId: "G-1N6NH3NKN5"
         };
 
-        const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+        const db = getFirestore();
 
+        // For simulating the user data for now (replace with actual auth logic)
         const user = JSON.parse(localStorage.getItem("user"));
 
         document.getElementById("loadCharacterButton").addEventListener("click", loadCharacter);
 
         async function loadCharacter() {
-            const characterRef = db.collection('characters').doc(user.uid); // User-based character
-            const doc = await characterRef.get();
+            const characterRef = doc(db, 'characters', user.uid); // User-based character
+            const docSnap = await getDoc(characterRef);
             
-            if (doc.exists) {
-                const characterData = doc.data();
+            if (docSnap.exists()) {
+                const characterData = docSnap.data();
                 document.getElementById("pageTitle").textContent = `D&D Character Sheet - ${characterData.main.core.name}`;
                 document.getElementById("characterTitle").textContent = characterData.main.core.name;
                 displayCharacterSheet(characterData);
@@ -112,8 +116,8 @@
         }
 
         async function saveCharacterData(characterData) {
-            const characterRef = db.collection('characters').doc(user.uid); // Save based on the logged-in user
-            await characterRef.set(characterData);
+            const characterRef = doc(db, 'characters', user.uid); // Save based on the logged-in user
+            await setDoc(characterRef, characterData);
             console.log("Character data saved successfully!");
         }
     </script>
