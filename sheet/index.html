@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>D&D Character Editor</title>
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -35,6 +34,8 @@
         label {
             display: block;
             font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
         }
         input, select {
             width: 100%;
@@ -43,108 +44,201 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
+        .skills {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .skill {
+            display: flex;
+            align-items: center;
+        }
+        .skill label {
+            flex: 1;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+        }
         button {
-            background-color: #28a745;
+            background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 10px 15px;
             font-size: 16px;
-            border-radius: 4px;
             cursor: pointer;
-            width: 100%;
-            margin-top: 20px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
         }
         button:hover {
-            background-color: #218838;
+            background-color: #45a049;
+        }
+        .button-group button {
+            flex: 1;
+        }
+        .button-group button:not(:last-child) {
+            margin-right: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Edit D&D Character Sheet</h2>
+        <h2>D&D Character Sheet</h2>
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" placeholder="Enter name">
+        </div>
+        <div class="form-group">
+            <label for="class">Class</label>
+            <input type="text" id="class" placeholder="Enter class">
+        </div>
+        <div class="form-group">
+            <label for="race">Race</label>
+            <input type="text" id="race" placeholder="Enter race">
+        </div>
+        <div class="form-group">
+            <label for="background">Background</label>
+            <input type="text" id="background" placeholder="Enter background">
+        </div>
+        <div class="form-group">
+            <label for="alignment">Alignment</label>
+            <input type="text" id="alignment" placeholder="Enter alignment">
+        </div>
+        <div class="form-group">
+            <label for="level">Level</label>
+            <input type="number" id="level" placeholder="Enter level">
+        </div>
+        <div class="form-group">
+            <label for="experience">Experience</label>
+            <input type="number" id="experience" placeholder="Enter experience">
+        </div>
+        <div class="form-group">
+            <label for="age">Age</label>
+            <input type="number" id="age" placeholder="Enter age">
+        </div>
+        <div class="form-group">
+            <label for="weight">Weight</label>
+            <input type="text" id="weight" placeholder="Enter weight">
+        </div>
+        <div class="form-group">
+            <label for="height">Height</label>
+            <input type="text" id="height" placeholder="Enter height">
+        </div>
+        <div class="form-group">
+            <label for="armorClass">Armor Class</label>
+            <input type="number" id="armorClass" placeholder="Enter armor class">
+        </div>
+        <div class="form-group">
+            <label for="hitPoints">Hit Points</label>
+            <input type="number" id="hitPoints" placeholder="Enter hit points">
+        </div>
 
-        <form id="character-form">
-            <!-- Character Name -->
-            <div class="form-group">
-                <label for="name">Character Name</label>
-                <input type="text" id="name" name="name">
-            </div>
-            <!-- Character Class -->
-            <div class="form-group">
-                <label for="class">Class</label>
-                <input type="text" id="class" name="class">
-            </div>
-            <!-- Character Race -->
-            <div class="form-group">
-                <label for="race">Race</label>
-                <input type="text" id="race" name="race">
-            </div>
-            <!-- Character Level -->
-            <div class="form-group">
-                <label for="level">Level</label>
-                <input type="number" id="level" name="level">
-            </div>
-            <!-- Character Hit Points -->
-            <div class="form-group">
-                <label for="hitPoints">Hit Points</label>
-                <input type="number" id="hitPoints" name="hitPoints">
-            </div>
+        <!-- Skills Section -->
+        <div class="skills">
+            <div class="skill"><label for="acrobatics">Acrobatics</label><input type="number" id="acrobatics"></div>
+            <div class="skill"><label for="animalHandling">Animal Handling</label><input type="number" id="animalHandling"></div>
+            <div class="skill"><label for="arcana">Arcana</label><input type="number" id="arcana"></div>
+            <div class="skill"><label for="athletics">Athletics</label><input type="number" id="athletics"></div>
+            <div class="skill"><label for="deception">Deception</label><input type="number" id="deception"></div>
+            <div class="skill"><label for="history">History</label><input type="number" id="history"></div>
+            <div class="skill"><label for="insight">Insight</label><input type="number" id="insight"></div>
+            <div class="skill"><label for="intimidation">Intimidation</label><input type="number" id="intimidation"></div>
+            <div class="skill"><label for="investigation">Investigation</label><input type="number" id="investigation"></div>
+            <div class="skill"><label for="medicine">Medicine</label><input type="number" id="medicine"></div>
+            <div class="skill"><label for="nature">Nature</label><input type="number" id="nature"></div>
+            <div class="skill"><label for="perception">Perception</label><input type="number" id="perception"></div>
+            <div class="skill"><label for="performance">Performance</label><input type="number" id="performance"></div>
+            <div class="skill"><label for="persuation">Persuasion</label><input type="number" id="persuation"></div>
+            <div class="skill"><label for="religion">Religion</label><input type="number" id="religion"></div>
+            <div class="skill"><label for="sleightOfHand">Sleight of Hand</label><input type="number" id="sleightOfHand"></div>
+            <div class="skill"><label for="stealth">Stealth</label><input type="number" id="stealth"></div>
+            <div class="skill"><label for="survival">Survival</label><input type="number" id="survival"></div>
+        </div>
 
-            <button type="button" id="save-btn">Save Sheet</button>
-        </form>
-        <p id="status"></p>
+        <div class="button-group">
+            <button onclick="saveCharacter()">Save Character</button>
+            <button onclick="loadCharacter()">Load Character</button>
+        </div>
     </div>
 
     <script>
-        // Load the selected character file from localStorage
-        const selectedFile = JSON.parse(localStorage.getItem("selectedFile"));
-        const form = document.getElementById("character-form");
-        const statusMessage = document.getElementById("status");
+        const characterData = {
+            core: {
+                name: "Jhon Roe",
+                class: "barbarian",
+                race: "Mountain Dwarf",
+                background: "Depressed",
+                alignment: "Neutral",
+                gender: "Male",
+                deity: "None",
+                age: 27,
+                weight: "50kg",
+                height: "1.2m",
+                level: 5,
+                experience: 0
+            },
+            combat: {
+                maxHitPoints: 23,
+                currentHitPoints: 23,
+                armorClass: 15
+            },
+            stats: {
+                strength: { score: 16 },
+                dexterity: { score: 13 },
+                constitution: { score: 15 },
+                intelligence: { score: 10 },
+                wisdom: { score: 10 },
+                charisma: { score: 12 }
+            },
+            skillsprof: {
+                acrobatics: 0,
+                animalHandling: 0,
+                arcana: 0,
+                athletics: 1,
+                deception: 0,
+                history: 0,
+                insight: 0,
+                intimidation: 0,
+                investigation: 0,
+                medicine: 0,
+                nature: 0,
+                perception: 0,
+                performance: 0,
+                persuasion: 0,
+                religion: 0,
+                sleightOfHand: 0,
+                stealth: 0,
+                survival: 1
+            }
+        };
 
-        if (!selectedFile) {
-            window.location.href = "fileSelection.html";  // Redirect if no file is selected
+        function saveCharacter() {
+            localStorage.setItem('character', JSON.stringify(characterData));
         }
 
-        // Pre-fill the form with the selected file's data
-        document.getElementById("name").value = selectedFile.content?.main?.core?.name || "";
-        document.getElementById("class").value = selectedFile.content?.main?.core?.class || "";
-        document.getElementById("race").value = selectedFile.content?.main?.core?.race || "";
-        document.getElementById("level").value = selectedFile.content?.main?.core?.level || "";
-        document.getElementById("hitPoints").value = selectedFile.content?.main?.combat?.currentHitPoints || "";
+        function loadCharacter() {
+            const loadedData = JSON.parse(localStorage.getItem('character'));
+            if (loadedData) {
+                document.getElementById("name").value = loadedData.core.name;
+                document.getElementById("class").value = loadedData.core.class;
+                document.getElementById("race").value = loadedData.core.race;
+                document.getElementById("background").value = loadedData.core.background;
+                document.getElementById("alignment").value = loadedData.core.alignment;
+                document.getElementById("level").value = loadedData.core.level;
+                document.getElementById("experience").value = loadedData.core.experience;
+                document.getElementById("age").value = loadedData.core.age;
+                document.getElementById("weight").value = loadedData.core.weight;
+                document.getElementById("height").value = loadedData.core.height;
+                document.getElementById("armorClass").value = loadedData.combat.armorClass;
+                document.getElementById("hitPoints").value = loadedData.combat.maxHitPoints;
 
-        // Save the updated character to localStorage
-        document.getElementById("save-btn").addEventListener("click", () => {
-            const updatedCharacter = {
-                title: selectedFile.title,
-                content: {
-                    main: {
-                        core: {
-                            name: document.getElementById("name").value,
-                            class: document.getElementById("class").value,
-                            race: document.getElementById("race").value,
-                            level: parseInt(document.getElementById("level").value),
-                        },
-                        combat: {
-                            currentHitPoints: parseInt(document.getElementById("hitPoints").value),
-                        }
-                    }
-                }
-            };
-
-            // Save the updated file to localStorage
-            const files = JSON.parse(localStorage.getItem("files")) || [];
-            const fileIndex = files.findIndex(file => file.title === selectedFile.title);
-            if (fileIndex !== -1) {
-                files[fileIndex] = updatedCharacter; // Update the file
-                localStorage.setItem("files", JSON.stringify(files)); // Save updated files
+                // Skills
+                Object.keys(loadedData.skillsprof).forEach(skill => {
+                    document.getElementById(skill).value = loadedData.skillsprof[skill];
+                });
             }
-
-            // Update the selected file
-            localStorage.setItem("selectedFile", JSON.stringify(updatedCharacter));
-
-            // Notify the user
-            statusMessage.textContent = `Character "${updatedCharacter.content.main.core.name}" saved successfully!`;
-        });
+        }
     </script>
 </body>
 </html>
