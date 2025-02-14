@@ -104,9 +104,22 @@
           "Uses Arrows"
         ]
       },
-      "Handaxe": {
-        "amount": 2,
+      "Dagger": {
+        "amount": 1,
         "hit": "+3",
+        "damage": {
+          "dice": "d4",
+          "diceAmount": 1,
+          "bonusDamage": 3
+        },
+        "range": 5,
+        "type": "peircing",
+        "notes": [
+        ]
+      },
+        "Shortsword": {
+        "amount": 1,
+        "hit": "+5",
         "damage": {
           "dice": "d6",
           "diceAmount": 1,
@@ -115,19 +128,40 @@
         "range": 5,
         "type": "slashing",
         "notes": [
-          "Light",
-          "Thrown"
+        ]
+      },
+            "Dragon Bow": {
+        "amount": 1,
+        "hit": "+6",
+        "damage": {
+          "dice": "d4",
+          "diceAmount": 1,
+          "bonusDamage": 3
+        },
+        "range": 100,
+        "type": "peircing",
+        "notes": [
+          "10% chance to poison target",
         ]
       }
     }
   },
   "equipmentAndWealth": {
     "wealth": {
-      "copperPeices": 0,
-      "silverPeices": 0,
-      "electrumPeices": 0,
-      "goldPeices": 9,
-      "platinumPeices": 0
+      "materials": {
+        "copperPeices": 0,
+        "silverPeices": 0,
+        "electrumPeices": 0,
+        "goldPeices": 9,
+        "platinumPeices": 0
+      },
+      "jewleryAndValubles": {
+      },
+      "consumables": {
+        "taco": {
+          "amount": 3
+        }
+      }
     },
     "equipment": {
       "body": {
@@ -143,32 +177,12 @@
         }
       },
       "backpack": {
-        "dirt": {
-           "amount": 20,
-           "weight": 0.1,
-           "notes": "Straight from the Ground"
-        },
-        "taco": {
-           "amount": 20,
-           "weight": 0.1,
-           "notes": "Magical Taco from Han Foe"
-        },
-        "leaf": {
-           "amount": 20,
-           "weight": 0,
-           "notes": "Straight from a Tree"
-        },
-        "Quaal's Magic Feather": {
-           "amount": 1,
-           "weight": 0,
-           "notes": "Turns into the type of tree you're thinking of when it hits the ground"
-        }
       },
       "beltPouch": {
       },
       "quiver": {
       },
-      "saddleBag":{
+      "saddleBag": {
       }
     }
   }
