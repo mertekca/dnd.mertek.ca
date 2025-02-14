@@ -120,7 +120,7 @@
         // Create a new file and add it to localStorage
         createFileButton.addEventListener("click", () => {
             const newFile = {
-                title: `D&D Sheet for ${user.displayName} - ${new Date().toLocaleString()}`,
+                title: `New D&D Sheet`,
                 content: {}  // Empty content to start
             };
 
@@ -146,7 +146,7 @@
             // Store selected file in localStorage for use in another page
             localStorage.setItem("selectedFile", JSON.stringify(selectedFile));
 
-            // Redirect to the file editing page (or any other page you want)
+            // Redirect to the file editing page
             window.location.href = "/sheet";
         }
 
