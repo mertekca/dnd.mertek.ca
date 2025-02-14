@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Selection</title>
+    <title id="pageTitle">D&D Character Sheet</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -11,159 +11,132 @@
             font-family: 'Roboto', sans-serif;
             background-color: #f4f7fa;
             margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
+            padding: 20px;
         }
         .container {
-            background-color: white;
-            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 600px;
-            text-align: center;
         }
         h2 {
-            margin-bottom: 20px;
+            text-align: center;
             color: #333;
         }
-        .file-list {
+        .section {
             margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            background: #e9ecef;
         }
-        .file-item {
-            padding: 10px;
-            margin: 5px 0;
-            background-color: #e9ecef;
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        h3 {
+            margin-bottom: 10px;
+            color: #007bff;
         }
-        .file-item button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            font-size: 14px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .file-item button:hover {
-            background-color: #0056b3;
-        }
-        #create-file-btn {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            border-radius: 4px;
-            cursor: pointer;
+        table {
             width: 100%;
-            margin-bottom: 20px;
+            border-collapse: collapse;
+            background: white;
         }
-        #create-file-btn:hover {
-            background-color: #218838;
+        td {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+        td[contenteditable="true"] {
+            background-color: #fff9c4;
+            cursor: text;
+        }
+        td[contenteditable="true"]:focus {
+            background-color: #fff176;
         }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h2>Choose or Create a D&D Character Sheet</h2>
-
-        <!-- Button to create a new file -->
-        <button id="create-file-btn">Create New File</button>
-
-        <!-- Display list of existing files -->
-        <div class="file-list" id="file-list"></div>
-
-        <p id="status"></p>
+        <h2 id="characterTitle">D&D Character Sheet</h2>
+        <div id="characterSheet"></div>
     </div>
 
     <script>
-        // Get the current user from localStorage
-        const user = JSON.parse(localStorage.getItem("user"));
+        let characterData = {};
 
-        if (!user) {
-            window.location.href = "/login";  // Redirect if no user is logged in
-        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const selectedFile = JSON.parse(localStorage.getItem("selectedFile"));
 
-        const createFileButton = document.getElementById("create-file-btn");
-        const fileListContainer = document.getElementById("file-list");
-        const statusMessage = document.getElementById("status");
-
-        // Load saved files from localStorage
-        function loadFiles() {
-            const files = JSON.parse(localStorage.getItem("files")) || [];
-            fileListContainer.innerHTML = "";  // Clear previous file list
-
-            if (files.length === 0) {
-                fileListContainer.innerHTML = "<p>No files found. Please create one.</p>";
-            } else {
-                files.forEach((file, index) => {
-                    const fileItem = document.createElement("div");
-                    fileItem.classList.add("file-item");
-
-                    fileItem.innerHTML = `
-                        <span>${file.title}</span>
-                        <button onclick="selectFile(${index})">Select</button>
-                        <button onclick="deleteFile(${index})">Delete</button>
-                    `;
-                    fileListContainer.appendChild(fileItem);
-                });
+            if (!selectedFile) {
+                alert("No file selected! Redirecting...");
+                window.location.href = "/"; // Redirect to file selection page
+                return;
             }
-        }
 
-        // Create a new file and add it to localStorage
-        createFileButton.addEventListener("click", () => {
-            const newFile = {
-                title: `D&D Sheet for ${user.displayName} - ${new Date().toLocaleString()}`,
-                content: {}  // Empty content to start
-            };
+            characterData = selectedFile.content;
 
-            // Get files from localStorage and add new file
-            const files = JSON.parse(localStorage.getItem("files")) || [];
-            files.push(newFile);
+            document.getElementById("pageTitle").textContent = `D&D Character Sheet - ${selectedFile.title}`;
+            document.getElementById("characterTitle").textContent = selectedFile.title;
 
-            // Save updated files to localStorage
-            localStorage.setItem("files", JSON.stringify(files));
-
-            // Notify the user
-            statusMessage.textContent = `New file "${newFile.title}" created successfully!`;
-
-            // Reload the file list
-            loadFiles();
+            displayCharacterSheet();
         });
 
-        // Select a file and redirect to the file's page (you can modify this part)
-        function selectFile(index) {
-            const files = JSON.parse(localStorage.getItem("files"));
-            const selectedFile = files[index];
+        function formatKeyName(key) {
+            return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim();
+        }
 
-            // Store selected file in localStorage for use in another page
+        function displayCharacterSheet() {
+            const container = document.getElementById("characterSheet");
+            container.innerHTML = "";
+
+            function createEditableRow(key, value, parent) {
+                const row = document.createElement("tr");
+                const keyCell = document.createElement("td");
+                keyCell.textContent = formatKeyName(key);
+                const valueCell = document.createElement("td");
+                valueCell.textContent = value;
+                valueCell.setAttribute("contenteditable", "true");
+                valueCell.addEventListener("blur", function () {
+                    parent[key] = isNaN(valueCell.textContent) ? valueCell.textContent : Number(valueCell.textContent);
+                    saveToLocalStorage();
+                });
+                row.appendChild(keyCell);
+                row.appendChild(valueCell);
+                return row;
+            }
+
+            function createSection(title, data, parent) {
+                const section = document.createElement("div");
+                section.classList.add("section");
+                const header = document.createElement("h3");
+                header.textContent = title;
+                section.appendChild(header);
+                const table = document.createElement("table");
+
+                for (const key in data) {
+                    if (typeof data[key] === "object" && !Array.isArray(data[key])) {
+                        section.appendChild(createSection(formatKeyName(key), data[key], data[key]));
+                    } else {
+                        table.appendChild(createEditableRow(key, data[key], parent));
+                    }
+                }
+                section.appendChild(table);
+                return section;
+            }
+
+            container.appendChild(createSection("Core Stats", characterData.main.core, characterData.main.core));
+            container.appendChild(createSection("Combat Stats", characterData.main.combat, characterData.main.combat));
+            container.appendChild(createSection("Abilities", characterData.main.stats, characterData.main.stats));
+            container.appendChild(createSection("Skills", characterData.main.skillsprof, characterData.main.skillsprof));
+            container.appendChild(createSection("Wealth", characterData.equipmentAndWealth.wealth, characterData.equipmentAndWealth.wealth));
+            container.appendChild(createSection("Equipment", characterData.equipmentAndWealth.equipment, characterData.equipmentAndWealth.equipment));
+        }
+
+        function saveToLocalStorage() {
+            let selectedFile = JSON.parse(localStorage.getItem("selectedFile"));
+            selectedFile.content = characterData;
             localStorage.setItem("selectedFile", JSON.stringify(selectedFile));
-
-            // Redirect to the file editing page (or any other page you want)
-            window.location.href = "/sheet";
         }
-
-        // Delete a file from localStorage
-        function deleteFile(index) {
-            const files = JSON.parse(localStorage.getItem("files"));
-            files.splice(index, 1);  // Remove the file
-
-            // Save the updated list back to localStorage
-            localStorage.setItem("files", JSON.stringify(files));
-
-            // Reload the file list
-            loadFiles();
-        }
-
-        // Load the files when the page loads
-        loadFiles();
     </script>
+
 </body>
 </html>
