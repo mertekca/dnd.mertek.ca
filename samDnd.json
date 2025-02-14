@@ -1,0 +1,175 @@
+{
+  "title": "Copy of [Template] 5E D&D Character Sheet (Tintagel) v2.92",
+  "main": {
+    "core": {
+      "name": "Pita Dough",
+      "class": "Rouge",
+      "race": "Goblin",
+      "background": "In a abandond casle my parents did not want me and thought i was a witch so they dropped me at a random dwarf doorstep getting adoppted",
+      "alignment": "Neutral",
+      "gender": "Male",
+      "deity": "None",
+      "age": "45",
+      "weight": "86 lb",
+      "height": "5.1 feet",
+      "level": 2,
+      "experience": 0
+    },
+    "combat": {
+      "maxHitPoints": 15,
+      "currentHitPoints": 7,
+      "temporaryHitPoints": 0,
+      "armorClass": 17,
+      "speed": 30,
+      "hitDice": "2d8",
+      "deathSaves": {
+        "success": 0,
+        "failure": 0
+      },
+      "ammunition": {
+        "arrows": 2,
+        "bullets": 0
+      }
+    },
+    "stats": {
+      "strength": {
+        "score": 10,
+        "savingProf": 0,
+        "savingMisc": 0
+      },
+      "dexterity": {
+        "score": 17,
+        "savingProf": 1,
+        "savingMisc": 0
+      },
+      "constitution": {
+        "score": 13,
+        "savingProf": 0,
+        "savingMisc": 0
+      },
+      "inteligence": {
+        "score": 9,
+        "savingProf": 1,
+        "savingMisc": 0
+      },
+      "wisdom": {
+        "score": 14,
+        "savingProf": 0,
+        "savingMisc": 0
+      },
+      "charisma": {
+        "score": 12,
+        "savingProf": 0,
+        "savingMisc": 0
+      }
+    },
+    "skillsprof": {
+      "acrobatics": 0,
+      "animalHandling": 0,
+      "arcana": 0,
+      "athletics": 1,
+      "deception": 0,
+      "history": 0,
+      "insight": 0,
+      "intimidation": 1,
+      "investigation": 0,
+      "medicine": 0,
+      "nature": 0,
+      "perception": 0,
+      "performance": 0,
+      "persuation": 0,
+      "religion": 0,
+      "sleightOfHand": 1,
+      "stealth": 1,
+      "survival": 0
+    },
+    "specialAttacks": [
+      "Sneak Attack - 1d6"
+    ],
+    "specialDefences": [
+    ],
+    "weapons": {
+      "Shortbow": {
+        "amount": 1,
+        "hit": "+5",
+        "damage": {
+          "dice": "d6",
+          "diceAmount": 1,
+          "bonusDamage": 3
+        },
+        "range": 100,
+        "type": "peircing",
+        "notes": [
+          "Two-Handed",
+          "Uses Arrows"
+        ]
+      },
+      "Handaxe": {
+        "amount": 2,
+        "hit": "+3",
+        "damage": {
+          "dice": "d6",
+          "diceAmount": 1,
+          "bonusDamage": 3
+        },
+        "range": 5,
+        "type": "slashing",
+        "notes": [
+          "Light",
+          "Thrown"
+        ]
+      }
+    }
+  },
+  "equipmentAndWealth": {
+    "wealth": {
+      "copperPeices": 0,
+      "silverPeices": 0,
+      "electrumPeices": 0,
+      "goldPeices": 9,
+      "platinumPeices": 0
+    },
+    "equipment": {
+      "body": {
+        "clothes": {
+           "amount": 1,
+           "weight": 5,
+           "notes": "Regular Clothes"
+        },
+        "armour": {
+           "amount": 1,
+           "weight": 20,
+           "notes": "Protects you in battle"
+        }
+      },
+      "backpack": {
+        "dirt": {
+           "amount": 20,
+           "weight": 0.1,
+           "notes": "Straight from the Ground"
+        },
+        "taco": {
+           "amount": 20,
+           "weight": 0.1,
+           "notes": "Magical Taco from Han Foe"
+        },
+        "leaf": {
+           "amount": 20,
+           "weight": 0,
+           "notes": "Straight from a Tree"
+        },
+        "Quaal's Magic Feather": {
+           "amount": 1,
+           "weight": 0,
+           "notes": "Turns into the type of tree you're thinking of when it hits the ground"
+        }
+      },
+      "beltPouch": {
+      },
+      "quiver": {
+      },
+      "saddleBag":{
+      }
+    }
+  }
+}
