@@ -3,140 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">D&D Character Sheet</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <title>D&D Character Sheet</title>
     <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f4f7fa;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        h2 {
-            text-align: center;
-            color: #333;
-        }
-        .section {
-            margin-bottom: 20px;
-            padding: 15px;
-            border-radius: 6px;
-            background: #e9ecef;
-        }
-        h3 {
-            margin-bottom: 10px;
-            color: #007bff;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        }
-        td {
-            padding: 8px;
-            border: 1px solid #ddd;
-        }
-        td[contenteditable="true"] {
-            background-color: #fff9c4;
-            cursor: text;
-        }
-        td[contenteditable="true"]:focus {
-            background-color: #fff176;
-        }
+        body { font-family: Arial, sans-serif; }
+        .container { max-width: 800px; margin: auto; padding: 20px; }
+        h2 { border-bottom: 2px solid black; padding-bottom: 5px; }
+        .section { margin-bottom: 20px; }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <h2 id="characterTitle">D&D Character Sheet</h2>
-        <div id="characterSheet"></div>
+        <h1 id="title">D&D Character Sheet</h1>
+        
+        <input type="file" id="fileInput">
+
+        <div class="section">
+            <h2>Core Information</h2>
+            <p><strong>Name:</strong> <span id="name"></span></p>
+            <p><strong>Class:</strong> <span id="class"></span></p>
+            <p><strong>Race:</strong> <span id="race"></span></p>
+            <p><strong>Level:</strong> <span id="level"></span></p>
+        </div>
+
+        <div class="section">
+            <h2>Combat Stats</h2>
+            <p><strong>Max HP:</strong> <span id="maxHP"></span></p>
+            <p><strong>Current HP:</strong> <span id="currentHP"></span></p>
+            <p><strong>Armor Class:</strong> <span id="armorClass"></span></p>
+            <p><strong>Speed:</strong> <span id="speed"></span></p>
+        </div>
     </div>
 
     <script>
-        let characterData = {};
+        document.getElementById("fileInput").addEventListener("change", function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-        document.addEventListener("DOMContentLoaded", function () {
-            const selectedFile = JSON.parse(localStorage.getItem("selectedFile"));
-
-            if (!selectedFile) {
-                alert("No file selected! Redirecting...");
-                window.location.href = "/file-select"; // Redirect to file selection page
-                return;
-            }
-
-            characterData = selectedFile.content;
-
-            document.getElementById("pageTitle").textContent = `D&D Character Sheet - ${selectedFile.title}`;
-            document.getElementById("characterTitle").textContent = selectedFile.title;
-
-            displayCharacterSheet();
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const characterData = JSON.parse(e.target.result);
+                
+                document.getElementById("title").innerText = characterData.title;
+                document.getElementById("name").innerText = characterData.main.core.name;
+                document.getElementById("class").innerText = characterData.main.core.class;
+                document.getElementById("race").innerText = characterData.main.core.race;
+                document.getElementById("level").innerText = characterData.main.core.level;
+                document.getElementById("maxHP").innerText = characterData.main.combat.maxHitPoints;
+                document.getElementById("currentHP").innerText = characterData.main.combat.currentHitPoints;
+                document.getElementById("armorClass").innerText = characterData.main.combat.armorClass;
+                document.getElementById("speed").innerText = characterData.main.combat.speed;
+            };
+            reader.readAsText(file);
         });
-
-        function formatKeyName(key) {
-            return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim();
-        }
-
-        function displayCharacterSheet() {
-            const container = document.getElementById("characterSheet");
-            container.innerHTML = "";
-
-            function createEditableRow(key, value, parent) {
-                const row = document.createElement("tr");
-                const keyCell = document.createElement("td");
-                keyCell.textContent = formatKeyName(key);
-                const valueCell = document.createElement("td");
-                valueCell.textContent = value;
-                valueCell.setAttribute("contenteditable", "true");
-                valueCell.addEventListener("blur", function () {
-                    parent[key] = isNaN(valueCell.textContent) ? valueCell.textContent : Number(valueCell.textContent);
-                    saveToLocalStorage();
-                });
-                row.appendChild(keyCell);
-                row.appendChild(valueCell);
-                return row;
-            }
-
-            function createSection(title, data, parent) {
-                const section = document.createElement("div");
-                section.classList.add("section");
-                const header = document.createElement("h3");
-                header.textContent = title;
-                section.appendChild(header);
-                const table = document.createElement("table");
-
-                for (const key in data) {
-                    if (typeof data[key] === "object" && !Array.isArray(data[key])) {
-                        section.appendChild(createSection(formatKeyName(key), data[key], data[key]));
-                    } else {
-                        table.appendChild(createEditableRow(key, data[key], parent));
-                    }
-                }
-                section.appendChild(table);
-                return section;
-            }
-
-            container.appendChild(createSection("Core Stats", characterData.main.core, characterData.main.core));
-            container.appendChild(createSection("Combat Stats", characterData.main.combat, characterData.main.combat));
-            container.appendChild(createSection("Abilities", characterData.main.stats, characterData.main.stats));
-            container.appendChild(createSection("Skills", characterData.main.skillsprof, characterData.main.skillsprof));
-            container.appendChild(createSection("Wealth", characterData.equipmentAndWealth.wealth, characterData.equipmentAndWealth.wealth));
-            container.appendChild(createSection("Equipment", characterData.equipmentAndWealth.equipment, characterData.equipmentAndWealth.equipment));
-        }
-
-        function saveToLocalStorage() {
-            let selectedFile = JSON.parse(localStorage.getItem("selectedFile"));
-            selectedFile.content = characterData;
-            localStorage.setItem("selectedFile", JSON.stringify(selectedFile));
-        }
     </script>
-
 </body>
 </html>
