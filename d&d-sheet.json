@@ -130,6 +130,10 @@
       "electrumPeices": 0,
       "goldPeices": 10,
       "platinumPeices": 0
+    "jewleryAndValubles": {
+    },
+    "consumables": {
+      }
     },
     "equipment": {
       "body": {
