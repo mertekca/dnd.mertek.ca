@@ -17,7 +17,8 @@
     <div class="container">
         <h1 id="title">D&D Character Sheet</h1>
         
-        <input type="file" id="fileInput">
+        <input type="file" id="fileInput" accept=".json">
+        <button id="downloadBtn">Download JSON</button>
 
         <div class="section">
             <h2>Core Information</h2>
@@ -43,19 +44,28 @@
             const file = event.target.files[0];
             if (!file) return;
 
+            if (file.type !== "application/json") {
+                alert("Please upload a valid JSON file.");
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = function(e) {
-                characterData = JSON.parse(e.target.result);
-                
-                document.getElementById("title").innerText = characterData.title;
-                document.getElementById("name").innerText = characterData.main.core.name;
-                document.getElementById("class").innerText = characterData.main.core.class;
-                document.getElementById("race").innerText = characterData.main.core.race;
-                document.getElementById("level").innerText = characterData.main.core.level;
-                document.getElementById("maxHP").innerText = characterData.main.combat.maxHitPoints;
-                document.getElementById("currentHP").innerText = characterData.main.combat.currentHitPoints;
-                document.getElementById("armorClass").innerText = characterData.main.combat.armorClass;
-                document.getElementById("speed").innerText = characterData.main.combat.speed;
+                try {
+                    characterData = JSON.parse(e.target.result);
+                    
+                    document.getElementById("title").innerText = characterData.title;
+                    document.getElementById("name").innerText = characterData.main.core.name;
+                    document.getElementById("class").innerText = characterData.main.core.class;
+                    document.getElementById("race").innerText = characterData.main.core.race;
+                    document.getElementById("level").innerText = characterData.main.core.level;
+                    document.getElementById("maxHP").innerText = characterData.main.combat.maxHitPoints;
+                    document.getElementById("currentHP").innerText = characterData.main.combat.currentHitPoints;
+                    document.getElementById("armorClass").innerText = characterData.main.combat.armorClass;
+                    document.getElementById("speed").innerText = characterData.main.combat.speed;
+                } catch (error) {
+                    alert("Invalid JSON file format.");
+                }
             };
             reader.readAsText(file);
         });
@@ -83,6 +93,26 @@
                     this.blur();
                 }
             });
+        });
+
+        document.getElementById("downloadBtn").addEventListener("click", function() {
+            characterData.title = document.getElementById("title").innerText;
+            characterData.main.core.name = document.getElementById("name").innerText;
+            characterData.main.core.class = document.getElementById("class").innerText;
+            characterData.main.core.race = document.getElementById("race").innerText;
+            characterData.main.core.level = parseInt(document.getElementById("level").innerText) || 0;
+            characterData.main.combat.maxHitPoints = parseInt(document.getElementById("maxHP").innerText) || 0;
+            characterData.main.combat.currentHitPoints = parseInt(document.getElementById("currentHP").innerText) || 0;
+            characterData.main.combat.armorClass = parseInt(document.getElementById("armorClass").innerText) || 0;
+            characterData.main.combat.speed = parseInt(document.getElementById("speed").innerText) || 0;
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(characterData, null, 2));
+            const downloadAnchor = document.createElement("a");
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "character_sheet.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            document.body.removeChild(downloadAnchor);
         });
     </script>
 </body>
