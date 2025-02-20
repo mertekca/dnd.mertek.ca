@@ -1,119 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>D&D Character Sheet</title>
-    <style>
-        body { font-family: Arial, sans-serif; }
-        .container { max-width: 800px; margin: auto; padding: 20px; }
-        h2 { border-bottom: 2px solid black; padding-bottom: 5px; }
-        .section { margin-bottom: 20px; }
-        span { cursor: pointer; }
-        input.editable { display: none; width: 100px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D&D Character Sheet</title>
 </head>
 <body>
-    <div class="container">
-        <h1 id="title">D&D Character Sheet</h1>
+
+  <h1>Upload D&D Character Sheet</h1>
+
+  <!-- File input to upload JSON file -->
+  <input type="file" id="file-input" accept=".json" />
+
+  <!-- Section to display the character data -->
+  <div id="character-info"></div>
+
+  <script>
+    document.getElementById('file-input').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+
+      if (file) {
+        const reader = new FileReader();
         
-        <input type="file" id="fileInput" accept=".json">
-        <button id="downloadBtn">Download JSON</button>
+        // When the file is loaded, read it as text (JSON string)
+        reader.onload = function(e) {
+          const jsonData = JSON.parse(e.target.result); // Parse the JSON file
+          displayCharacterData(jsonData); // Display the data
+        };
 
-        <div class="section">
-            <h2>Core Information</h2>
-            <p><strong>Name:</strong> <span class="editable" id="name"></span><input type="text" class="editable-input"></p>
-            <p><strong>Class:</strong> <span class="editable" id="class"></span><input type="text" class="editable-input"></p>
-            <p><strong>Race:</strong> <span class="editable" id="race"></span><input type="text" class="editable-input"></p>
-            <p><strong>Level:</strong> <span class="editable" id="level"></span><input type="number" class="editable-input"></p>
-        </div>
+        reader.readAsText(file); // Read the file as text
+      }
+    });
 
-        <div class="section">
-            <h2>Combat Stats</h2>
-            <p><strong>Max HP:</strong> <span class="editable" id="maxHP"></span><input type="number" class="editable-input"></p>
-            <p><strong>Current HP:</strong> <span class="editable" id="currentHP"></span><input type="number" class="editable-input"></p>
-            <p><strong>Armor Class:</strong> <span class="editable" id="armorClass"></span><input type="number" class="editable-input"></p>
-            <p><strong>Speed:</strong> <span class="editable" id="speed"></span><input type="number" class="editable-input"></p>
-        </div>
-    </div>
+    // Function to display character data from the JSON file using tables
+    function displayCharacterData(data) {
+      const characterInfo = document.getElementById('character-info');
 
-    <script>
-        let characterData = {};
+      // Core details table
+      const coreDetails = data.main.core;
+      const coreTable = `
+        <h2>Core Information</h2>
+        <table border="1">
+          <tr><th>Name</th><td>${coreDetails.name}</td></tr>
+          <tr><th>Class</th><td>${coreDetails.class}</td></tr>
+          <tr><th>Race</th><td>${coreDetails.race}</td></tr>
+          <tr><th>Alignment</th><td>${coreDetails.alignment}</td></tr>
+          <tr><th>Background</th><td>${coreDetails.background}</td></tr>
+          <tr><th>Age</th><td>${coreDetails.age}</td></tr>
+          <tr><th>Weight</th><td>${coreDetails.weight}</td></tr>
+          <tr><th>Height</th><td>${coreDetails.height}</td></tr>
+          <tr><th>Level</th><td>${coreDetails.level}</td></tr>
+          <tr><th>Experience</th><td>${coreDetails.experience}</td></tr>
+        </table>
+      `;
 
-        document.getElementById("fileInput").addEventListener("change", function(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+      // Combat details table
+      const combatDetails = data.main.combat;
+      const combatTable = `
+        <h2>Combat Information</h2>
+        <table border="1">
+          <tr><th>Max HP</th><td>${combatDetails.maxHitPoints}</td></tr>
+          <tr><th>Current HP</th><td>${combatDetails.currentHitPoints}</td></tr>
+          <tr><th>Armor Class</th><td>${combatDetails.armorClass}</td></tr>
+          <tr><th>Speed</th><td>${combatDetails.speed}</td></tr>
+          <tr><th>Hit Dice</th><td>${combatDetails.hitDice}</td></tr>
+        </table>
+      `;
 
-            if (file.type !== "application/json") {
-                alert("Please upload a valid JSON file.");
-                return;
-            }
+      // Stats details table
+      const stats = data.main.stats;
+      const statsTable = `
+        <h2>Stats</h2>
+        <table border="1">
+          <tr><th>Strength</th><td>${stats.strength.score}</td></tr>
+          <tr><th>Dexterity</th><td>${stats.dexterity.score}</td></tr>
+          <tr><th>Constitution</th><td>${stats.constitution.score}</td></tr>
+          <tr><th>Intelligence</th><td>${stats.inteligence.score}</td></tr>
+          <tr><th>Wisdom</th><td>${stats.wisdom.score}</td></tr>
+          <tr><th>Charisma</th><td>${stats.charisma.score}</td></tr>
+        </table>
+      `;
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    characterData = JSON.parse(e.target.result);
-                    
-                    document.getElementById("title").innerText = characterData.title;
-                    document.getElementById("name").innerText = characterData.main.core.name;
-                    document.getElementById("class").innerText = characterData.main.core.class;
-                    document.getElementById("race").innerText = characterData.main.core.race;
-                    document.getElementById("level").innerText = characterData.main.core.level;
-                    document.getElementById("maxHP").innerText = characterData.main.combat.maxHitPoints;
-                    document.getElementById("currentHP").innerText = characterData.main.combat.currentHitPoints;
-                    document.getElementById("armorClass").innerText = characterData.main.combat.armorClass;
-                    document.getElementById("speed").innerText = characterData.main.combat.speed;
-                } catch (error) {
-                    alert("Invalid JSON file format.");
-                }
-            };
-            reader.readAsText(file);
-        });
+      // Combine all tables and inject them into the page
+      characterInfo.innerHTML = coreTable + combatTable + statsTable;
+    }
+  </script>
 
-        document.querySelectorAll(".editable").forEach(span => {
-            span.addEventListener("dblclick", function() {
-                const input = this.nextElementSibling;
-                input.value = this.innerText;
-                this.style.display = "none";
-                input.style.display = "inline";
-                input.focus();
-            });
-        });
-
-        document.querySelectorAll(".editable-input").forEach(input => {
-            input.addEventListener("blur", function() {
-                const span = this.previousElementSibling;
-                span.innerText = this.value;
-                span.style.display = "inline";
-                this.style.display = "none";
-            });
-
-            input.addEventListener("keypress", function(event) {
-                if (event.key === "Enter") {
-                    this.blur();
-                }
-            });
-        });
-
-        document.getElementById("downloadBtn").addEventListener("click", function() {
-            characterData.title = document.getElementById("title").innerText;
-            characterData.main.core.name = document.getElementById("name").innerText;
-            characterData.main.core.class = document.getElementById("class").innerText;
-            characterData.main.core.race = document.getElementById("race").innerText;
-            characterData.main.core.level = parseInt(document.getElementById("level").innerText) || 0;
-            characterData.main.combat.maxHitPoints = parseInt(document.getElementById("maxHP").innerText) || 0;
-            characterData.main.combat.currentHitPoints = parseInt(document.getElementById("currentHP").innerText) || 0;
-            characterData.main.combat.armorClass = parseInt(document.getElementById("armorClass").innerText) || 0;
-            characterData.main.combat.speed = parseInt(document.getElementById("speed").innerText) || 0;
-
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(characterData, null, 2));
-            const downloadAnchor = document.createElement("a");
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", "character_sheet.json");
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            document.body.removeChild(downloadAnchor);
-        });
-    </script>
 </body>
 </html>
