@@ -35,9 +35,25 @@
     // Function to display character data from the JSON file using tables
     function displayCharacterData(data) {
       const characterInfo = document.getElementById('character-info');
+      const coreDetails = data.main.core;
+
+      // Function to calculate savingScore dynamically based on the stat
+      function calculateSavingScore(stat) {
+        return (Math.ceil(coreDetails.level / 4) + 1) * stat.savingProf + stat.savingMisc;
+      }
+
+      // Stats details table
+      const stats = data.main.stats;
+
+      // Calculating savingScore for each stat dynamically
+      stats.strength.savingScore = calculateSavingScore(stats.strength);
+      stats.dexterity.savingScore = calculateSavingScore(stats.dexterity);
+      stats.constitution.savingScore = calculateSavingScore(stats.constitution);
+      stats.inteligence.savingScore = calculateSavingScore(stats.inteligence);
+      stats.wisdom.savingScore = calculateSavingScore(stats.wisdom);
+      stats.charisma.savingScore = calculateSavingScore(stats.charisma);
 
       // Core details table
-      const coreDetails = data.main.core;
       const coreTable = `
         <h2>Core Information</h2>
         <table border="1">
@@ -67,41 +83,27 @@
           <tr><th>Hit Dice</th><td>${combatDetails.hitDice}</td></tr>
         </table>
       `;
-      
-      // Function to calculate savingScore dynamically based on the stat
-      function calculateSavingScore(stat) {
-        return (Math.ceil(coreDetails.level / 4) + 1) * stats.stat.savingProf + stats.stat.savingMisc;
-      }
 
-      // Calculating savingScore for each stat dynamically
-      stats.strength.savingScore = calculateSavingScore(strength);
-      stats.dexterity.savingScore = calculateSavingScore(dexterity);
-      stats.constitution.savingScore = calculateSavingScore(constitution);
-      stats.inteligence.savingScore = calculateSavingScore(inteligence);
-      stats.wisdom.savingScore = calculateSavingScore(wisdom);
-      stats.charisma.savingScore = calculateSavingScore(charisma);
-      
       // Stats details table
-      const stats = data.main.stats;
       const statsTable = `
         <h2>Stats</h2>
         <table border="1">
-          <tr> <th>Ability Scores</th> </tr>
-          <tr> <th>Ability</th> <th>Score</th>
-          <tr> <td>Strength</td> <td>${stats.strength.score}</td> </tr>
-          <tr> <td>Dexterity</td> <td>${stats.dexterity.score}</td> </tr>
-          <tr> <td>Constitution</td> <td>${stats.constitution.score}</td> </tr>
-          <tr> <td>Intellegence</td> <td>${stats.intellegence.score}</td> </tr>
-          <tr> <td>Wisdom</td> <td>${stats.wisdom.score}</td> </tr>
-          <tr> <td>Charisma</td> <td>${stats.strength.score}</td> </tr>
-          <tr> <th>Saving Throws</th> </tr>
-          <tr> <th>Ability</th> <th>Score</th> <th>Proficiecy</th> <th>Misc</th>
-          <tr> <td>Strength</td> <td>${stats.strength.savingScore}</td> <td>${stats.strength.savingProf}</td> <td>${stats.strength.savingMisc}</td> </tr>
-          <tr> <td>Dexterity</td> <td>${stats.dexterity.savingScore}</td> <td>${stats.dexterity.savingProf}</td> <td>${stats.dexterity.savingMisc}</td> </tr>
-          <tr> <td>Constitution</td> <td>${stats.constitution.savingScore}</td> <td>${stats.constitution.savingProf}</td> <td>${stats.constitution.savingMisc}</td> </tr>
-          <tr> <td>Intellegence</td> <td>${stats.intellegence.savingScore}</td> <td>${stats.intellegence.savingProf}</td> <td>${stats.intellegence.savingMisc}</td> </tr>
-          <tr> <td>Wisdom</td> <td>${stats.wisdom.savingScore}</td> <td>${stats.wisdom.savingProf}</td> <td>${stats.wisdom.savingMisc}</td> </tr>
-          <tr> <td>Charisma</td> <td>${stats.charisma.savingScore}</td> <td>${stats.charisma.savingProf}</td> <td>${stats.charisma.savingMisc}</td> </tr>
+          <tr><th>Ability Scores</th></tr>
+          <tr><th>Ability</th><th>Score</th></tr>
+          <tr><td>Strength</td><td>${stats.strength.score}</td></tr>
+          <tr><td>Dexterity</td><td>${stats.dexterity.score}</td></tr>
+          <tr><td>Constitution</td><td>${stats.constitution.score}</td></tr>
+          <tr><td>Intelligence</td><td>${stats.inteligence.score}</td></tr>
+          <tr><td>Wisdom</td><td>${stats.wisdom.score}</td></tr>
+          <tr><td>Charisma</td><td>${stats.charisma.score}</td></tr
+          <tr><th>Saving Throws</th></tr>
+          <tr><th>Ability</th><th>Saving Score</th><th>Proficiency</th><th>Misc</th></tr>
+          <tr><td>Strength</td><td>${stats.strength.savingScore}</td><td>${stats.strength.savingProf}</td><td>${stats.strength.savingMisc}</td></tr>
+          <tr><td>Dexterity</td><td>${stats.dexterity.savingScore}</td><td>${stats.dexterity.savingProf}</td><td>${stats.dexterity.savingMisc}</td></tr>
+          <tr><td>Constitution</td><td>${stats.constitution.savingScore}</td><td>${stats.constitution.savingProf}</td><td>${stats.constitution.savingMisc}</td></tr>
+          <tr><td>Intelligence</td><td>${stats.inteligence.savingScore}</td><td>${stats.inteligence.savingProf}</td><td>${stats.inteligence.savingMisc}</td></tr>
+          <tr><td>Wisdom</td><td>${stats.wisdom.savingScore}</td><td>${stats.wisdom.savingProf}</td><td>${stats.wisdom.savingMisc}</td></tr>
+          <tr><td>Charisma</td><td>${stats.charisma.savingScore}</td><td>${stats.charisma.savingProf}</td><td>${stats.charisma.savingMisc}</td></tr>
         </table>
       `;
 
