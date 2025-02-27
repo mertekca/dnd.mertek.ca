@@ -54,7 +54,7 @@
 
         function calculateSkillModifier(abilityScore, proficiency, proficiencyBonus) {
             const abilityModifier = Math.floor((abilityScore - 10) / 2);
-            return abilityModifier + (proficiency ? proficiencyBonus : 0);
+            return abilityModifier + (proficiency * proficiencyBonus);
         }
 
         function displayCharacterSheet(data) {
@@ -108,14 +108,33 @@
             savingThrowsInfo += '</table>';
             container.appendChild(createSection('Saving Throws', savingThrowsInfo));
 
+            // Hardcoded skills and corresponding abilities
+            const skillList = [
+                { name: 'Acrobatics', ability: 'DEX', proficiency: data.main.skills.acrobatics },
+                { name: 'Animal Handling', ability: 'WIS', proficiency: data.main.skills.animalHandling },
+                { name: 'Arcana', ability: 'INT', proficiency: data.main.skills.arcana },
+                { name: 'Athletics', ability: 'STR', proficiency: data.main.skills.athletics },
+                { name: 'Deception', ability: 'CHA', proficiency: data.main.skills.deception },
+                { name: 'History', ability: 'INT', proficiency: data.main.skills.history },
+                { name: 'Insight', ability: 'WIS', proficiency: data.main.skills.insight },
+                { name: 'Intimidation', ability: 'CHA', proficiency: data.main.skills.intimidation },
+                { name: 'Medicine', ability: 'WIS', proficiency: data.main.skills.medicine },
+                { name: 'Nature', ability: 'INT', proficiency: data.main.skills.nature },
+                { name: 'Perception', ability: 'WIS', proficiency: data.main.skills.perception },
+                { name: 'Performance', ability: 'CHA', proficiency: data.main.skills.performance },
+                { name: 'Persuasion', ability: 'CHA', proficiency: data.main.skills.persuasion },
+                { name: 'Religion', ability: 'INT', proficiency: data.main.skills.religion },
+                { name: 'Sleight of Hand', ability: 'DEX', proficiency: data.main.skills.sleightOfHand },
+                { name: 'Stealth', ability: 'DEX', proficiency: data.main.skills.stealth },
+                { name: 'Survival', ability: 'WIS', proficiency: data.main.skills.survival }
+            ];
+
             let skillsInfo = '<table>';
-            for (const skill in data.main.skills) {
-                const abilityKey = data.main.skills[skill].ability; // Assuming each skill has an associated ability (e.g., STR, DEX, etc.)
-                const proficiency = data.main.skills[skill].proficiency; // Assuming a boolean for proficiency in skill
-                const abilityScore = data.main.stats[abilityKey].score;
-                const skillModifier = calculateSkillModifier(abilityScore, proficiency, proficiencyBonus);
-                skillsInfo += `<tr><th>${formatKey(skill)}</th><td>${skillModifier >= 0 ? '+' : ''}${skillModifier}</td></tr>`;
-            }
+            skillList.forEach(skill => {
+                const abilityScore = data.main.stats[skill.ability].score;
+                const skillModifier = calculateSkillModifier(abilityScore, skill.proficiency, proficiencyBonus);
+                skillsInfo += `<tr><th>${formatKey(skill.name)}</th><td>${skillModifier >= 0 ? '+' : ''}${skillModifier}</td></tr>`;
+            });
             skillsInfo += '</table>';
             container.appendChild(createSection('Skills', skillsInfo));
 
