@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>D&D Character Sheet Loader</title>
+    <title>D&D Character Sheet</title>
     <style>
         body { font-family: Arial, sans-serif; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
@@ -13,7 +13,7 @@
     </style>
 </head>
 <body>
-    <h2>Upload D&D Character Sheet (JSON)</h2>
+    <h1>Upload D&D Character Sheet</h1>
     <input type="file" id="fileInput" accept="application/json">
     <div id="sheetContainer"></div>
 
@@ -40,12 +40,10 @@
                       .replace("Hp", "HP");
         }
 
-        function createCheckboxes(count) {
-            let checkboxes = '';
-            for (let i = 0; i < count; i++) {
-                checkboxes += '<input type="checkbox"> ';
-            }
-            return checkboxes;
+        function createThreeCheckboxes(name) {
+            return `<input type="checkbox" name="${name}"> 
+                    <input type="checkbox" name="${name}"> 
+                    <input type="checkbox" name="${name}">`;
         }
 
         function displayCharacterSheet(data) {
@@ -69,8 +67,7 @@
             let combatInfo = '<table>';
             for (const key in data.main.combat) {
                 if (key === 'deathSaves') {
-                    const ds = data.main.combat[key];
-                    combatInfo += `<tr><th>Death Saves</th><td>Success: ${createCheckboxes(ds.success)} Failure: ${createCheckboxes(ds.failure)}</td></tr>`;
+                    combatInfo += `<tr><th>Death Saves</th><td>Success: ${createThreeCheckboxes('deathSuccess')} Failure: ${createThreeCheckboxes('deathFailure')}</td></tr>`;
                 } else {
                     combatInfo += `<tr><th>${formatKey(key)}</th><td>${data.main.combat[key]}</td></tr>`;
                 }
