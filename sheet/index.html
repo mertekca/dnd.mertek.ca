@@ -81,10 +81,18 @@
 
             let statsInfo = '<table>';
             for (const key in data.main.stats) {
-                statsInfo += `<tr><th>${formatKey(key)}</th><td>Score: ${data.main.stats[key].score}, Saving Prof: ${data.main.stats[key].savingProf}, Saving Misc: ${data.main.stats[key].savingMisc}</td></tr>`;
+                const modifier = Math.floor((data.main.stats[key].score - 10) / 2);
+                statsInfo += `<tr><th>${formatKey(key)}</th></tr><tr><td>${data.main.stats[key].score}</td></tr><tr><td>${modifier >= 0 ? '+' : ''}${modifier}</td></tr>`;
             }
             statsInfo += '</table>';
             container.appendChild(createSection('Ability Scores', statsInfo));
+
+            let savingThrowsInfo = '<table>';
+            for (const key in data.main.stats) {
+                savingThrowsInfo += `<tr><th>${formatKey(key)}</th><td>Proficiency: ${data.main.stats[key].savingProf}, Misc: ${data.main.stats[key].savingMisc}</td></tr>`;
+            }
+            savingThrowsInfo += '</table>';
+            container.appendChild(createSection('Saving Throws', savingThrowsInfo));
 
             let skillsInfo = '<table>';
             for (const key in data.main.skillsprof) {
