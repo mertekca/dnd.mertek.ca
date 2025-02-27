@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>D&D Character Sheet</title>
+    <title>D&D Character Sheet Loader</title>
     <style>
         body { font-family: Arial, sans-serif; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
@@ -13,7 +13,7 @@
     </style>
 </head>
 <body>
-    <h1>Upload D&D Character Sheet</h1>
+    <h2>Upload D&D Character Sheet (JSON)</h2>
     <input type="file" id="fileInput" accept="application/json">
     <div id="sheetContainer"></div>
 
@@ -40,10 +40,12 @@
                       .replace("Hp", "HP");
         }
 
-        function createThreeCheckboxes(name) {
-            return `<input type="checkbox" name="${name}"> 
-                    <input type="checkbox" name="${name}"> 
-                    <input type="checkbox" name="${name}">`;
+        function createCheckboxes(name, count) {
+            let checkboxes = '';
+            for (let i = 0; i < 3; i++) {
+                checkboxes += `<input type="checkbox" name="${name}" ${i < count ? 'checked' : ''}>`;
+            }
+            return checkboxes;
         }
 
         function displayCharacterSheet(data) {
@@ -67,7 +69,9 @@
             let combatInfo = '<table>';
             for (const key in data.main.combat) {
                 if (key === 'deathSaves') {
-                    combatInfo += `<tr><th>Death Saves</th><td>Success: ${createThreeCheckboxes('deathSuccess')} Failure: ${createThreeCheckboxes('deathFailure')}</td></tr>`;
+                    combatInfo += `<tr><th>Death Saves</th><td>Success: ${createCheckboxes('deathSuccess', data.main.combat.deathSaves.success)} Failure: ${createCheckboxes('deathFailure', data.main.combat.deathSaves.failure)}</td></tr>`;
+                } else if (key === 'ammunition') {
+                    combatInfo += `<tr><th>Ammunition</th><td>Bullets: ${data.main.combat.ammunition.bullets}<br>Arrows: ${data.main.combat.ammunition.arrows}</td></tr>`;
                 } else {
                     combatInfo += `<tr><th>${formatKey(key)}</th><td>${data.main.combat[key]}</td></tr>`;
                 }
