@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D&D Character Sheet</title>
+</head>
+<body>
+
+  <h1>Upload D&D Character Sheet</h1>
+
+  <!-- File input to upload JSON file -->
+  <input type="file" id="file-input" accept=".json" />
+
+  <!-- Section to display the character data -->
+  <div id="character-info"></div>
+
+  <script>
+    document.getElementById('file-input').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+
+      if (file) {
+        const reader = new FileReader();
+        
+        // When the file is loaded, read it as text (JSON string)
+        reader.onload = function(e) {
+          const jsonData = JSON.parse(e.target.result); // Parse the JSON file
+          displayCharacterData(jsonData); // Display the data
+        };
+
+        reader.readAsText(file); // Read the file as text
+      }
+    });
+
+    // Function to display character data from the JSON file using tables
+    function displayCharacterData(data) {
+      const characterInfo = document.getElementById('character-info');
+      const coreDetails = data.main.core;
+
+      // Function to calculate savingScore dynamically based on the stat
+      function calculateSavingScore(stat) {
+        return (Math.ceil(coreDetails.level / 4) + 1) * stat.savingProf + stat.savingMisc;
+      }
+
+      // Stats details table
+      const stats = data.main.stats;
+
+      // Calculating savingScore for each stat dynamically
+      stats.strength.savingScore = calculateSavingScore(stats.strength);
+      stats.dexterity.savingScore = calculateSavingScore(stats.dexterity);
+      stats.constitution.savingScore = calculateSavingScore(stats.constitution);
+      stats.inteligence.savingScore = calculateSavingScore(stats.inteligence);
+      stats.wisdom.savingScore = calculateSavingScore(stats.wisdom);
+      stats.charisma.savingScore = calculateSavingScore(stats.charisma);
+
+      // Core details table
+      const coreTable = `
+        <h2>Core Information</h2>
+        <table border="1">
+          <tr><th>Name</th><td>${coreDetails.name}</td></tr>
+          <tr><th>Class</th><td>${coreDetails.class}</td></tr>
+          <tr><th>Race</th><td>${coreDetails.race}</td></tr>
+          <tr><th>Alignment</th><td>${coreDetails.alignment}</td></tr>
+          <tr><th>Background</th><td>${coreDetails.background}</td></tr>
+          <tr><th>Age</th><td>${coreDetails.age}</td></tr>
+          <tr><th>Weight</th><td>${coreDetails.weight}</td></tr>
+          <tr><th>Height</th><td>${coreDetails.height}</td></tr>
+          <tr><th>Level</th><td>${coreDetails.level}</td></tr>
+          <tr><th>Experience</th><td>${coreDetails.experience}</td></tr>
+          <tr><th>Proficiency Bonus</th><td>${Math.ceil(coreDetails.level / 4) + 1}</td></tr>
+        </table>
+      `;
+
+      // Combat details table
+      const combatDetails = data.main.combat;
+      const combatTable = `
+        <h2>Combat Information</h2>
+        <table border="1">
+          <tr><th>Max HP</th><td>${combatDetails.maxHitPoints}</td></tr>
+          <tr><th>Current HP</th><td>${combatDetails.currentHitPoints}</td></tr>
+          <tr><th>Armor Class</th><td>${combatDetails.armorClass}</td></tr>
+          <tr><th>Speed</th><td>${combatDetails.speed}</td></tr>
+          <tr><th>Hit Dice</th><td>${combatDetails.hitDice}</td></tr>
+        </table>
+      `;
+
+      // Stats details table
+      const statsTable = `
+        <h2>Stats</h2>
+        <table border="1">
+          <tr><th>Ability Scores</th></tr>
+          <tr><th>Ability</th><th>Score</th></tr>
+          <tr><td>Strength</td><td>${stats.strength.score}</td></tr>
+          <tr><td>Dexterity</td><td>${stats.dexterity.score}</td></tr>
+          <tr><td>Constitution</td><td>${stats.constitution.score}</td></tr>
+          <tr><td>Intelligence</td><td>${stats.inteligence.score}</td></tr>
+          <tr><td>Wisdom</td><td>${stats.wisdom.score}</td></tr>
+          <tr><td>Charisma</td><td>${stats.charisma.score}</td></tr
+          <tr><th>Saving Throws</th></tr>
+          <tr><th>Ability</th><th>Saving Score</th><th>Proficiency</th><th>Misc</th></tr>
+          <tr><td>Strength</td><td>${stats.strength.savingScore}</td><td>${stats.strength.savingProf}</td><td>${stats.strength.savingMisc}</td></tr>
+          <tr><td>Dexterity</td><td>${stats.dexterity.savingScore}</td><td>${stats.dexterity.savingProf}</td><td>${stats.dexterity.savingMisc}</td></tr>
+          <tr><td>Constitution</td><td>${stats.constitution.savingScore}</td><td>${stats.constitution.savingProf}</td><td>${stats.constitution.savingMisc}</td></tr>
+          <tr><td>Intelligence</td><td>${stats.inteligence.savingScore}</td><td>${stats.inteligence.savingProf}</td><td>${stats.inteligence.savingMisc}</td></tr>
+          <tr><td>Wisdom</td><td>${stats.wisdom.savingScore}</td><td>${stats.wisdom.savingProf}</td><td>${stats.wisdom.savingMisc}</td></tr>
+          <tr><td>Charisma</td><td>${stats.charisma.savingScore}</td><td>${stats.charisma.savingProf}</td><td>${stats.charisma.savingMisc}</td></tr>
+        </table>
+      `;
+
+      // Combine all tables and inject them into the page
+      characterInfo.innerHTML = coreTable + combatTable + statsTable;
+    }
+  </script>
+
+</body>
+</html>
