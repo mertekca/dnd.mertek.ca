@@ -20,12 +20,8 @@ function formatKey(key) {
               .replace("Hp", "HP");
 }
 
-function createCheckboxes(name, count) {
-    let checkboxes = '';
-    for (let i = 0; i < 3; i++) {
-        checkboxes += `<input type="checkbox" name="${name}" ${i < count ? 'checked' : ''}>`;
-    }
-    return checkboxes;
+function createCheckbox(name, checked) {
+    return `<input type="checkbox" name="${name}" ${checked ? 'checked' : ''}>`;
 }
 
 function displayCharacterSheet(data) {
@@ -56,7 +52,7 @@ function displayCharacterSheet(data) {
     let combatInfo = '<table>';
     for (const key in data.main.combat) {
         if (key === 'deathSaves') {
-            combatInfo += `<tr><th>Death Saves</th><td>Success: ${createCheckboxes('deathSuccess', data.main.combat.deathSaves.success)} Failure: ${createCheckboxes('deathFailure', data.main.combat.deathSaves.failure)}</td></tr>`;
+            combatInfo += `<tr><th>Death Saves</th><td>Success: ${createCheckbox('deathSuccess', data.main.combat.deathSaves.success)} Failure: ${createCheckbox('deathFailure', data.main.combat.deathSaves.failure)}</td></tr>`;
         } else if (key === 'ammunition') {
             combatInfo += `<tr><th>Ammunition</th><td>Bullets: ${data.main.combat.ammunition.bullets}<br>Arrows: ${data.main.combat.ammunition.arrows}</td></tr>`;
         } else {
@@ -69,8 +65,9 @@ function displayCharacterSheet(data) {
     // Ability Scores
     let statsInfo = '<table>';
     for (const key in data.main.stats) {
-        const modifier = Math.floor((data.main.stats[key].score - 10) / 2);
-        statsInfo += `<tr><th>${formatKey(key)}</th></tr><tr><td>${data.main.stats[key].score}</td></tr><tr><td>${modifier >= 0 ? '+' : ''}${modifier}</td></tr>`;
+        const score = data.main.stats[key]?.score || 0; // Default to 0 if score is missing
+        const modifier = Math.floor((score - 10) / 2);
+        statsInfo += `<tr><th>${formatKey(key)}</th></tr><tr><td>${score}</td></tr><tr><td>${modifier >= 0 ? '+' : ''}${modifier}</td></tr>`;
     }
     statsInfo += '</table>';
     container.appendChild(createSection('Ability Scores', statsInfo));
@@ -92,10 +89,23 @@ function displayCharacterSheet(data) {
     ];
 
     skillsList.forEach(skill => {
-        const modifier = Math.floor((data.main.stats[skill]?.score - 10) / 2);
+        const score = data.main.stats[skill]?.score || 0; // Default to 0 if score is missing
+        const modifier = Math.floor((score - 10) / 2);
         const proficiency = data.main.skillsprof[skill] ? proficiencyBonus : 0;
         const skillValue = modifier + proficiency;
-        skillsInfo += `<tr><th>${formatKey(skill)}</th><td>${skillValue >= 0 ? '+' : ''}${skillValue}</td></tr>`;
+        const isProficient = data.main.skillsprof[skill] === 1;
+
+        skillsInfo += `
+            <tr>
+                <th>${formatKey(skill)}</th>
+                <td>
+                    ${modifier >= 0 ? '+' : ''}${modifier} + ${proficiency} 
+                    = ${skillValue >= 0 ? '+' : ''}${skillValue}
+                    <br>
+                    Proficient: ${createCheckbox(skill, isProficient)}
+                </td>
+            </tr>
+        `;
     });
 
     skillsInfo += '</table>';
