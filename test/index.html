@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D Character Sheet Loader</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .section { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h2>Upload D&D Character Sheet (JSON)</h2>
+    <input type="file" id="fileInput" accept="application/json">
+    <div id="sheetContainer"></div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    displayCharacterSheet(data);
+                } catch (error) {
+                    alert('Invalid JSON file');
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        function displayCharacterSheet(data) {
+            const container = document.getElementById('sheetContainer');
+            container.innerHTML = '';
+
+            function createSection(title, content) {
+                const section = document.createElement('div');
+                section.classList.add('section');
+                section.innerHTML = `<h3>${title}</h3>${content}`;
+                return section;
+            }
+
+            let coreInfo = '<table>';
+            for (const key in data.main.core) {
+                coreInfo += `<tr><th>${key}</th><td>${data.main.core[key]}</td></tr>`;
+            }
+            coreInfo += '</table>';
+            container.appendChild(createSection('Core Information', coreInfo));
+
+            let combatInfo = '<table>';
+            for (const key in data.main.combat) {
+                if (typeof data.main.combat[key] === 'object') {
+                    combatInfo += `<tr><th>${key}</th><td>${JSON.stringify(data.main.combat[key])}</td></tr>`;
+                } else {
+                    combatInfo += `<tr><th>${key}</th><td>${data.main.combat[key]}</td></tr>`;
+                }
+            }
+            combatInfo += '</table>';
+            container.appendChild(createSection('Combat Stats', combatInfo));
+
+            let statsInfo = '<table>';
+            for (const key in data.main.stats) {
+                statsInfo += `<tr><th>${key}</th><td>Score: ${data.main.stats[key].score}, Saving Prof: ${data.main.stats[key].savingProf}, Saving Misc: ${data.main.stats[key].savingMisc}</td></tr>`;
+            }
+            statsInfo += '</table>';
+            container.appendChild(createSection('Ability Scores', statsInfo));
+
+            let skillsInfo = '<table>';
+            for (const key in data.main.skillsprof) {
+                skillsInfo += `<tr><th>${key}</th><td>${data.main.skillsprof[key] ? 'Proficient' : 'Not Proficient'}</td></tr>`;
+            }
+            skillsInfo += '</table>';
+            container.appendChild(createSection('Skills Proficiency', skillsInfo));
+
+            let weaponsInfo = '<table>';
+            for (const weapon in data.main.weapons) {
+                const w = data.main.weapons[weapon];
+                weaponsInfo += `<tr><th>${weapon}</th><td>Hit: ${w.hit}, Damage: ${w.damage.diceAmount}${w.damage.dice} + ${w.damage.bonusDamage}, Type: ${w.type}</td></tr>`;
+            }
+            weaponsInfo += '</table>';
+            container.appendChild(createSection('Weapons', weaponsInfo));
+        }
+    </script>
+</body>
+</html>
