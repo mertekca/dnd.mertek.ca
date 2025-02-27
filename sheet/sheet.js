@@ -32,6 +32,9 @@ function displayCharacterSheet(data) {
     const container = document.getElementById('sheetContainer');
     container.innerHTML = ''; // Clear the container before rendering new data
 
+    // Calculate Proficiency Bonus (only once)
+    const proficiencyBonus = Math.ceil(data.main.core.level / 4) + 1;
+
     // Function to create section with title and content
     function createSection(title, content) {
         const section = document.createElement('div');
@@ -45,8 +48,6 @@ function displayCharacterSheet(data) {
     for (const key in data.main.core) {
         coreInfo += `<tr><th>${formatKey(key)}</th><td>${data.main.core[key]}</td></tr>`;
     }
-    // Add Proficiency Bonus
-    const proficiencyBonus = Math.ceil(data.main.core.level / 4) + 1;
     coreInfo += `<tr><th>Proficiency Bonus</th><td>${proficiencyBonus}</td></tr>`;
     coreInfo += '</table>';
     container.appendChild(createSection('Core Information', coreInfo));
@@ -84,7 +85,6 @@ function displayCharacterSheet(data) {
 
     // Skills Section
     let skillsInfo = '<table>';
-    const proficiencyBonus = Math.ceil(data.main.core.level / 4) + 1;
     const skillsList = [
         'acrobatics', 'animalHandling', 'arcana', 'athletics', 'deception', 'history', 'insight', 'intimidation',
         'investigation', 'medicine', 'nature', 'perception', 'performance', 'persuasion', 'religion',
