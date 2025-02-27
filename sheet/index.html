@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>D&D Character Sheet Loader</title>
+    <title>D&D Character Sheet</title>
     <style>
         body { font-family: Arial, sans-serif; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
@@ -13,7 +13,7 @@
     </style>
 </head>
 <body>
-    <h2>Upload D&D Character Sheet (JSON)</h2>
+    <h1>Upload a D&D Character Sheet</h1>
     <input type="file" id="fileInput" accept="application/json">
     <div id="sheetContainer"></div>
 
@@ -48,6 +48,15 @@
             return checkboxes;
         }
 
+        function calculateProficiencyBonus(level) {
+            return Math.ceil(level / 4) + 1;
+        }
+
+        function calculateSkillModifier(abilityScore, proficiency, proficiencyBonus) {
+            const abilityModifier = Math.floor((abilityScore - 10) / 2);
+            return abilityModifier + (proficiency ? proficiencyBonus : 0);
+        }
+
         function displayCharacterSheet(data) {
             const container = document.getElementById('sheetContainer');
             container.innerHTML = '';
@@ -63,6 +72,11 @@
             for (const key in data.main.core) {
                 coreInfo += `<tr><th>${formatKey(key)}</th><td>${data.main.core[key]}</td></tr>`;
             }
+
+            // Add proficiency bonus to core info
+            const proficiencyBonus = calculateProficiencyBonus(data.main.core.level);
+            coreInfo += `<tr><th>Proficiency Bonus</th><td>${proficiencyBonus}</td></tr>`;
+            
             coreInfo += '</table>';
             container.appendChild(createSection('Core Information', coreInfo));
 
@@ -95,11 +109,15 @@
             container.appendChild(createSection('Saving Throws', savingThrowsInfo));
 
             let skillsInfo = '<table>';
-            for (const key in data.main.skillsprof) {
-                skillsInfo += `<tr><th>${formatKey(key)}</th><td>${data.main.skillsprof[key] ? 'Proficient' : 'Not Proficient'}</td></tr>`;
+            for (const skill in data.main.skills) {
+                const abilityKey = data.main.skills[skill].ability; // Assuming each skill has an associated ability (e.g., STR, DEX, etc.)
+                const proficiency = data.main.skills[skill].proficiency; // Assuming a boolean for proficiency in skill
+                const abilityScore = data.main.stats[abilityKey].score;
+                const skillModifier = calculateSkillModifier(abilityScore, proficiency, proficiencyBonus);
+                skillsInfo += `<tr><th>${formatKey(skill)}</th><td>${skillModifier >= 0 ? '+' : ''}${skillModifier}</td></tr>`;
             }
             skillsInfo += '</table>';
-            container.appendChild(createSection('Skills Proficiency', skillsInfo));
+            container.appendChild(createSection('Skills', skillsInfo));
 
             let weaponsInfo = '<table>';
             for (const weapon in data.main.weapons) {
