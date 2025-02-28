@@ -1,5 +1,52 @@
-body { font-family: Arial, sans-serif; }
-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-th, td { border: 1px solid black; padding: 8px; text-align: left; }
-th { background-color: #f2f2f2; }
-.section { margin-top: 20px; }
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #222;
+    color: #ddd;
+}
+
+h1 {
+    text-align: center;
+    color: #fff;
+}
+
+#fileInput {
+    display: block;
+    margin: 20px auto;
+}
+
+.section {
+    background: #333;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+
+h3 {
+    margin-bottom: 10px;
+    color: #f5b642;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 8px;
+    border-bottom: 1px solid #555;
+}
+
+th {
+    text-align: left;
+    color: #ffcc00;
+}
+
+td {
+    text-align: right;
+}
+
+input[type="checkbox"] {
+    transform: scale(1.2);
+    margin-left: 10px;
+}
