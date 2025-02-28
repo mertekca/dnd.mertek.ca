@@ -1,3 +1,5 @@
+let characterData = {}; // Store the character data globally
+
 document.getElementById('fileInput').addEventListener('change', function(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -5,8 +7,8 @@ document.getElementById('fileInput').addEventListener('change', function(event) 
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
-            const data = JSON.parse(e.target.result);
-            displayCharacterSheet(data);
+            characterData = JSON.parse(e.target.result);
+            displayCharacterSheet(characterData);
         } catch (error) {
             alert('Invalid JSON file');
         }
@@ -20,46 +22,55 @@ function formatKey(key) {
               .replace("Hp", "HP");
 }
 
-function createEditableCell(value, updateFunction) {
+// Creates an editable table cell
+function createEditableCell(value, path, isNumber = false) {
     const cell = document.createElement('td');
     cell.textContent = value;
+    cell.dataset.path = path;
+    cell.dataset.isNumber = isNumber;
+
     cell.addEventListener('dblclick', function() {
         const input = document.createElement('input');
-        input.type = 'text';
         input.value = value;
-        input.addEventListener('blur', () => updateValue(input, cell, updateFunction));
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') updateValue(input, cell, updateFunction);
+        input.type = isNumber ? 'number' : 'text';
+        input.addEventListener('blur', function() {
+            let newValue = isNumber ? parseFloat(input.value) : input.value;
+            if (isNumber && isNaN(newValue)) newValue = 0;
+            
+            updateData(path, newValue);
+            cell.textContent = newValue;
+        });
+        input.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') input.blur();
         });
 
-        cell.innerHTML = '';
+        cell.textContent = '';
         cell.appendChild(input);
         input.focus();
     });
+
     return cell;
 }
 
-function updateValue(input, cell, updateFunction) {
-    let newValue = input.value.trim();
-    if (!isNaN(newValue)) newValue = Number(newValue); // Convert numbers
-    updateFunction(newValue);
-    cell.textContent = newValue;
+// Updates the character data based on input changes
+function updateData(path, value) {
+    const keys = path.split('.');
+    let obj = characterData;
+    for (let i = 0; i < keys.length - 1; i++) {
+        obj = obj[keys[i]];
+    }
+    obj[keys[keys.length - 1]] = value;
 }
 
-function createCheckbox(id, checked, updateFunction) {
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.id = id;
-    checkbox.checked = checked;
-    checkbox.addEventListener('change', () => updateFunction(checkbox.checked));
-    return checkbox;
+// Calculates proficiency bonus based on level
+function calculateProficiencyBonus(level) {
+    return Math.ceil(level / 4) + 1;
 }
 
+// Displays the character sheet
 function displayCharacterSheet(data) {
     const container = document.getElementById('sheetContainer');
     container.innerHTML = '';
-
-    const proficiencyBonus = Math.ceil(data.main.core.level / 4) + 1;
 
     function createSection(title, content) {
         const section = document.createElement('div');
@@ -72,89 +83,90 @@ function displayCharacterSheet(data) {
     // Core Information
     let coreInfo = document.createElement('table');
     for (const key in data.main.core) {
-        let row = document.createElement('tr');
-        row.innerHTML = `<th>${formatKey(key)}</th>`;
-        row.appendChild(createEditableCell(data.main.core[key], (newValue) => {
-            data.main.core[key] = newValue;
-        }));
+        const row = document.createElement('tr');
+        row.appendChild(document.createElement('th')).textContent = formatKey(key);
+        row.appendChild(createEditableCell(data.main.core[key], `main.core.${key}`, typeof data.main.core[key] === 'number'));
         coreInfo.appendChild(row);
     }
-    coreInfo.innerHTML += `<tr><th>Proficiency Bonus</th><td>${proficiencyBonus}</td></tr>`;
+    
+    // Add calculated proficiency bonus
+    const profRow = document.createElement('tr');
+    profRow.appendChild(document.createElement('th')).textContent = "Proficiency Bonus";
+    profRow.appendChild(document.createElement('td')).textContent = `+${calculateProficiencyBonus(data.main.core.level)}`;
+    coreInfo.appendChild(profRow);
+
     container.appendChild(createSection('Core Information', coreInfo));
 
-    // Ability Scores
-    let statsInfo = document.createElement('table');
-    for (const key in data.main.stats) {
-        const stat = data.main.stats[key];
-        let row = document.createElement('tr');
-        const score = stat.score || 10;
-        const modifier = Math.floor((score - 10) / 2);
-        row.innerHTML = `<th>${formatKey(key)}</th>`;
-        row.appendChild(createEditableCell(score, (newValue) => {
-            stat.score = newValue;
-            displayCharacterSheet(data); // Refresh to update dependent fields
-        }));
-        row.innerHTML += `<td>(${modifier >= 0 ? '+' : ''}${modifier})</td>`;
-        statsInfo.appendChild(row);
-    }
-    container.appendChild(createSection('Ability Scores', statsInfo));
+    // Skills Section
+    let skillsTable = document.createElement('table');
+    let proficiencyBonus = calculateProficiencyBonus(data.main.core.level);
 
-    // Skills Section with Proficiency Checkbox
-    let skillsInfo = document.createElement('table');
-    const skillsList = {
-        'acrobatics': 'dexterity', 'animalHandling': 'wisdom', 'arcana': 'intelligence',
-        'athletics': 'strength', 'deception': 'charisma', 'history': 'intelligence',
-        'insight': 'wisdom', 'intimidation': 'charisma', 'investigation': 'intelligence',
-        'medicine': 'wisdom', 'nature': 'intelligence', 'perception': 'wisdom',
-        'performance': 'charisma', 'persuasion': 'charisma', 'religion': 'intelligence',
-        'sleightOfHand': 'dexterity', 'stealth': 'dexterity', 'survival': 'wisdom'
-    };
+    for (const skill in data.main.skillsprof) {
+        const row = document.createElement('tr');
+        const skillModifier = Math.floor((data.main.stats[getAbilityFromSkill(skill)].score - 10) / 2);
+        const isProficient = data.main.skillsprof[skill] > 0;
+        const skillTotal = skillModifier + (isProficient ? proficiencyBonus : 0);
 
-    for (const skill in skillsList) {
-        const stat = skillsList[skill];
-        const score = data.main.stats[stat]?.score || 10;
-        const modifier = Math.floor((score - 10) / 2);
-        const isProficient = data.main.skillsprof[skill] === 1;
-        const proficiency = isProficient ? proficiencyBonus : 0;
-        const skillValue = modifier + proficiency;
-
-        let row = document.createElement('tr');
-        let cell = document.createElement('td');
-        cell.textContent = `${skillValue >= 0 ? '+' : ''}${skillValue}`; // Read-only
-
-        let checkbox = createCheckbox(`prof_${skill}`, isProficient, (checked) => {
-            data.main.skillsprof[skill] = checked ? 1 : 0;
-            displayCharacterSheet(data);
+        let checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = isProficient;
+        checkbox.addEventListener('change', function() {
+            updateData(`main.skillsprof.${skill}`, this.checked ? 1 : 0);
+            displayCharacterSheet(characterData);
         });
 
-        row.innerHTML = `<th>${formatKey(skill)}</th>`;
-        cell.appendChild(document.createTextNode(' '));
-        cell.appendChild(checkbox);
-        row.appendChild(cell);
-        skillsInfo.appendChild(row);
+        row.appendChild(document.createElement('th')).textContent = formatKey(skill);
+        let modCell = document.createElement('td');
+        modCell.textContent = skillTotal;
+        row.appendChild(modCell);
+        let checkCell = document.createElement('td');
+        checkCell.appendChild(checkbox);
+        row.appendChild(checkCell);
+        skillsTable.appendChild(row);
     }
 
-    container.appendChild(createSection('Skills', skillsInfo));
+    container.appendChild(createSection('Skills', skillsTable));
 
-    // Death Saves
-    let deathSaves = document.createElement('table');
-    ['success', 'failure'].forEach(type => {
-        let row = document.createElement('tr');
-        let label = document.createElement('th');
-        label.innerText = `Death Saves (${type})`;
-        
-        let cell = document.createElement('td');
-        for (let i = 1; i <= 3; i++) {
-            let checkbox = createCheckbox(`deathSave_${type}_${i}`, data.main.combat.deathSaves[type] >= i, (checked) => {
-                data.main.combat.deathSaves[type] = checked ? i : i - 1;
-                displayCharacterSheet(data);
-            });
-            cell.appendChild(checkbox);
-        }
-        row.appendChild(label);
-        row.appendChild(cell);
-        deathSaves.appendChild(row);
-    });
+    // Add a download button
+    const downloadButton = document.createElement('button');
+    downloadButton.textContent = "Download Sheet";
+    downloadButton.addEventListener('click', downloadCharacterSheet);
+    container.appendChild(downloadButton);
+}
 
-    container.appendChild(createSection('Death Saves', deathSaves));
+// Helper function to determine which ability governs a skill
+function getAbilityFromSkill(skill) {
+    const skillMapping = {
+        acrobatics: "dexterity",
+        animalHandling: "wisdom",
+        arcana: "inteligence",
+        athletics: "strength",
+        deception: "charisma",
+        history: "inteligence",
+        insight: "wisdom",
+        intimidation: "charisma",
+        investigation: "inteligence",
+        medicine: "wisdom",
+        nature: "inteligence",
+        perception: "wisdom",
+        performance: "charisma",
+        persuation: "charisma",
+        religion: "inteligence",
+        sleightOfHand: "dexterity",
+        stealth: "dexterity",
+        survival: "wisdom"
+    };
+    return skillMapping[skill] || "inteligence";
+}
+
+// Downloads the edited sheet as a JSON file
+function downloadCharacterSheet() {
+    const json = JSON.stringify(characterData, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = characterData.title ? `${characterData.title}.json` : "character_sheet.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 }
