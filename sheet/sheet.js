@@ -1,5 +1,3 @@
-let characterData = {};
-
 document.getElementById('fileInput').addEventListener('change', function(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -7,8 +5,8 @@ document.getElementById('fileInput').addEventListener('change', function(event) 
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
-            characterData = JSON.parse(e.target.result);
-            displayCharacterSheet();
+            const data = JSON.parse(e.target.result);
+            displayCharacterSheet(data);
         } catch (error) {
             alert('Invalid JSON file');
         }
@@ -16,141 +14,127 @@ document.getElementById('fileInput').addEventListener('change', function(event) 
     reader.readAsText(file);
 });
 
-// Returns the proficiency bonus based on character level
-function getProficiencyBonus(level) {
+function formatKey(key) {
+    return key.replace(/([A-Z])/g, ' $1')
+              .replace(/^./, str => str.toUpperCase())
+              .replace("Hp", "HP");
+}
+
+function createCheckboxes(name, count) {
+    let checkboxes = '';
+    for (let i = 0; i < 3; i++) {
+        checkboxes += `<input type="checkbox" name="${name}" ${i < count ? 'checked' : ''}>`;
+    }
+    return checkboxes;
+}
+
+function calculateProficiencyBonus(level) {
     return Math.ceil(level / 4) + 1;
 }
 
-// Mapping skills to ability scores
-const skillAbilities = {
-    acrobatics: "dexterity",
-    animalHandling: "wisdom",
-    arcana: "intelligence",
-    athletics: "strength",
-    deception: "charisma",
-    history: "intelligence",
-    insight: "wisdom",
-    intimidation: "charisma",
-    investigation: "intelligence",
-    medicine: "wisdom",
-    nature: "intelligence",
-    perception: "wisdom",
-    performance: "charisma",
-    persuasion: "charisma",
-    religion: "intelligence",
-    sleightOfHand: "dexterity",
-    stealth: "dexterity",
-    survival: "wisdom"
-};
+function makeEditable(cell) {
+    const originalValue = cell.innerText;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = originalValue;
+    cell.innerHTML = '';
+    cell.appendChild(input);
 
-// Creates an editable cell
-function createEditableCell(value, path, isNumber = false) {
-    const cell = document.createElement('td');
-    cell.textContent = value;
-    cell.dataset.path = path;
-    cell.dataset.isNumber = isNumber;
-
-    cell.addEventListener('dblclick', function() {
-        const input = document.createElement('input');
-        input.value = value;
-        input.type = isNumber ? 'number' : 'text';
-        input.addEventListener('blur', function() {
-            let newValue = isNumber ? parseFloat(input.value) : input.value;
-            if (isNumber && isNaN(newValue)) newValue = 0;
-
-            updateData(path, newValue);
-            displayCharacterSheet();
-        });
-        input.addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') input.blur();
-        });
-
-        cell.textContent = '';
-        cell.appendChild(input);
-        input.focus();
+    input.addEventListener('blur', () => {
+        cell.innerHTML = input.value;
     });
-
-    return cell;
 }
 
-// Updates the character data
-function updateData(path, value) {
-    const keys = path.split('.');
-    let obj = characterData;
-    for (let i = 0; i < keys.length - 1; i++) {
-        obj = obj[keys[i]];
-    }
-    obj[keys[keys.length - 1]] = value;
-}
-
-// Display Character Sheet
-function displayCharacterSheet() {
+function displayCharacterSheet(data) {
     const container = document.getElementById('sheetContainer');
     container.innerHTML = '';
 
-    function createSection(title, content) {
-        const section = document.createElement('div');
-        section.classList.add('section');
-        section.innerHTML = `<h3>${title}</h3>`;
-        section.appendChild(content);
-        return section;
-    }
+    const proficiencyBonus = calculateProficiencyBonus(data.main.core.level);
 
     // Core Information
-    let coreTable = document.createElement('table');
-    for (const key in characterData.main.core) {
-        const row = document.createElement('tr');
-        row.appendChild(document.createElement('th')).textContent = key;
-        row.appendChild(createEditableCell(characterData.main.core[key], `main.core.${key}`, typeof characterData.main.core[key] === 'number'));
-        coreTable.appendChild(row);
+    let coreInfo = '<table>';
+    for (const key in data.main.core) {
+        coreInfo += `<tr><th>${formatKey(key)}</th><td ${key !== "level" ? 'ondblclick="makeEditable(this)"' : ''}>${data.main.core[key]}</td></tr>`;
     }
-    
-    // Add Proficiency Bonus
-    let profRow = document.createElement('tr');
-    profRow.appendChild(document.createElement('th')).textContent = "Proficiency Bonus";
-    profRow.appendChild(document.createElement('td')).textContent = `+${getProficiencyBonus(characterData.main.core.level)}`;
-    coreTable.appendChild(profRow);
+    coreInfo += `<tr><th>Proficiency Bonus</th><td>${proficiencyBonus}</td></tr>`;
+    coreInfo += '</table>';
+    container.appendChild(createSection('Core Information', coreInfo));
 
-    container.appendChild(createSection('Core Information', coreTable));
-
-    // Skills Table
-    let skillsTable = document.createElement('table');
-    for (const skill in characterData.main.skillsprof) {
-        const row = document.createElement('tr');
-        const ability = skillAbilities[skill] || "intelligence";
-        const abilityScore = characterData.main.stats[ability].score || 10;
-        const abilityMod = Math.floor((abilityScore - 10) / 2);
-        const proficiencyBonus = getProficiencyBonus(characterData.main.core.level);
-        const isProficient = characterData.main.skillsprof[skill] > 0;
-        const skillTotal = abilityMod + (isProficient ? proficiencyBonus : 0);
-
-        let checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = isProficient;
-        checkbox.addEventListener('change', function() {
-            updateData(`main.skillsprof.${skill}`, this.checked ? 1 : 0);
-            displayCharacterSheet();
-        });
-
-        row.appendChild(document.createElement('th')).textContent = skill;
-        row.appendChild(document.createElement('td')).textContent = skillTotal;
-        let checkCell = document.createElement('td');
-        checkCell.appendChild(checkbox);
-        row.appendChild(checkCell);
-        skillsTable.appendChild(row);
+    // Combat Info
+    let combatInfo = '<table>';
+    for (const key in data.main.combat) {
+        if (key === 'deathSaves') {
+            combatInfo += `<tr><th>Death Saves</th><td>Success: ${createCheckboxes('deathSuccess', data.main.combat.deathSaves.success)} Failure: ${createCheckboxes('deathFailure', data.main.combat.deathSaves.failure)}</td></tr>`;
+        } else if (key === 'ammunition') {
+            combatInfo += `<tr><th>Ammunition</th><td>Bullets: ${data.main.combat.ammunition.bullets}<br>Arrows: ${data.main.combat.ammunition.arrows}</td></tr>`;
+        } else {
+            combatInfo += `<tr><th>${formatKey(key)}</th><td>${data.main.combat[key]}</td></tr>`;
+        }
     }
+    combatInfo += '</table>';
+    container.appendChild(createSection('Combat Stats', combatInfo));
 
-    container.appendChild(createSection('Skills', skillsTable));
+    // Stats Info
+    let statsInfo = '<table>';
+    for (const key in data.main.stats) {
+        const modifier = Math.floor((data.main.stats[key].score - 10) / 2);
+        statsInfo += `<tr><th>${formatKey(key)}</th><td ${key !== "score" ? 'ondblclick="makeEditable(this)"' : ''}>${data.main.stats[key].score}</td></tr>`;
+        statsInfo += `<tr><td>${modifier >= 0 ? '+' : ''}${modifier}</td></tr>`;
+    }
+    statsInfo += '</table>';
+    container.appendChild(createSection('Ability Scores', statsInfo));
+
+    // Skills Info
+    let skillsInfo = '<table>';
+    const skills = [
+        'acrobatics', 'animalHandling', 'arcana', 'athletics', 'deception', 'history',
+        'insight', 'intimidation', 'investigation', 'medicine', 'nature', 'perception',
+        'performance', 'persuation', 'religion', 'sleightOfHand', 'stealth', 'survival'
+    ];
+    for (const skill of skills) {
+        const skillModifier = Math.floor((data.main.stats[skill].score - 10) / 2);
+        const proficiencyBonus = data.main.skillsprof[skill] ? calculateProficiencyBonus(data.main.core.level) : 0;
+        const total = skillModifier + proficiencyBonus;
+
+        skillsInfo += `<tr><th>${formatKey(skill)}</th><td ondblclick="makeEditable(this)">${total >= 0 ? '+' : ''}${total}</td></tr>`;
+    }
+    skillsInfo += '</table>';
+    container.appendChild(createSection('Skills', skillsInfo));
+
+    // Weapons Info
+    let weaponsInfo = '<table>';
+    for (const weapon in data.main.weapons) {
+        const w = data.main.weapons[weapon];
+        weaponsInfo += `<tr><th>${weapon}</th><td>Hit: ${w.hit}, Damage: ${w.damage.diceAmount}${w.damage.dice} + ${w.damage.bonusDamage}, Type: ${w.type}</td></tr>`;
+    }
+    weaponsInfo += '</table>';
+    container.appendChild(createSection('Weapons', weaponsInfo));
+
+    // Equipment and Wealth
+    let equipmentInfo = '<table>';
+    for (const key in data.equipmentAndWealth.equipment) {
+        equipmentInfo += `<tr><th>${formatKey(key)}</th><td>${JSON.stringify(data.equipmentAndWealth.equipment[key])}</td></tr>`;
+    }
+    equipmentInfo += '</table>';
+    container.appendChild(createSection('Equipment and Wealth', equipmentInfo));
+
+    // Download Button
+    document.getElementById('downloadBtn').style.display = 'block';
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+        const newData = JSON.stringify(data, null, 2);
+        const blob = new Blob([newData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'character_sheet.json';
+        link.click();
+        URL.revokeObjectURL(url);
+    });
 }
 
-// Download JSON
-document.getElementById('downloadButton').addEventListener('click', function() {
-    const json = JSON.stringify(characterData, null, 2);
-    const blob = new Blob([json], { type: "application/json" });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = "character_sheet.json";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-});
+function createSection(title, content) {
+    const section = document.createElement('div');
+    section.classList.add('section');
+    section.innerHTML = `<h3>${title}</h3>${content}`;
+    return section;
+}
