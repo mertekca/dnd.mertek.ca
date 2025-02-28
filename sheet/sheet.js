@@ -20,6 +20,32 @@ function formatKey(key) {
               .replace("Hp", "HP");
 }
 
+function createEditableCell(value, updateFunction) {
+    const cell = document.createElement('td');
+    cell.textContent = value;
+    cell.addEventListener('dblclick', function() {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = value;
+        input.addEventListener('blur', () => updateValue(input, cell, updateFunction));
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') updateValue(input, cell, updateFunction);
+        });
+
+        cell.innerHTML = '';
+        cell.appendChild(input);
+        input.focus();
+    });
+    return cell;
+}
+
+function updateValue(input, cell, updateFunction) {
+    let newValue = input.value.trim();
+    if (!isNaN(newValue)) newValue = Number(newValue); // Convert numbers
+    updateFunction(newValue);
+    cell.textContent = newValue;
+}
+
 function createCheckbox(id, checked, updateFunction) {
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
@@ -33,7 +59,6 @@ function displayCharacterSheet(data) {
     const container = document.getElementById('sheetContainer');
     container.innerHTML = '';
 
-    // Calculate Proficiency Bonus
     const proficiencyBonus = Math.ceil(data.main.core.level / 4) + 1;
 
     function createSection(title, content) {
@@ -48,7 +73,10 @@ function displayCharacterSheet(data) {
     let coreInfo = document.createElement('table');
     for (const key in data.main.core) {
         let row = document.createElement('tr');
-        row.innerHTML = `<th>${formatKey(key)}</th><td>${data.main.core[key]}</td>`;
+        row.innerHTML = `<th>${formatKey(key)}</th>`;
+        row.appendChild(createEditableCell(data.main.core[key], (newValue) => {
+            data.main.core[key] = newValue;
+        }));
         coreInfo.appendChild(row);
     }
     coreInfo.innerHTML += `<tr><th>Proficiency Bonus</th><td>${proficiencyBonus}</td></tr>`;
@@ -57,10 +85,16 @@ function displayCharacterSheet(data) {
     // Ability Scores
     let statsInfo = document.createElement('table');
     for (const key in data.main.stats) {
-        const score = data.main.stats[key]?.score || 10;
-        const modifier = Math.floor((score - 10) / 2);
+        const stat = data.main.stats[key];
         let row = document.createElement('tr');
-        row.innerHTML = `<th>${formatKey(key)}</th><td>${score} (${modifier >= 0 ? '+' : ''}${modifier})</td>`;
+        const score = stat.score || 10;
+        const modifier = Math.floor((score - 10) / 2);
+        row.innerHTML = `<th>${formatKey(key)}</th>`;
+        row.appendChild(createEditableCell(score, (newValue) => {
+            stat.score = newValue;
+            displayCharacterSheet(data); // Refresh to update dependent fields
+        }));
+        row.innerHTML += `<td>(${modifier >= 0 ? '+' : ''}${modifier})</td>`;
         statsInfo.appendChild(row);
     }
     container.appendChild(createSection('Ability Scores', statsInfo));
@@ -86,7 +120,7 @@ function displayCharacterSheet(data) {
 
         let row = document.createElement('tr');
         let cell = document.createElement('td');
-        cell.innerHTML = `${skillValue >= 0 ? '+' : ''}${skillValue}`;
+        cell.textContent = `${skillValue >= 0 ? '+' : ''}${skillValue}`; // Read-only
 
         let checkbox = createCheckbox(`prof_${skill}`, isProficient, (checked) => {
             data.main.skillsprof[skill] = checked ? 1 : 0;
