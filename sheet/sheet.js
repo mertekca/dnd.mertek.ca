@@ -20,103 +20,130 @@ function formatKey(key) {
               .replace("Hp", "HP");
 }
 
-function createCheckbox(name, checked) {
-    return `<input type="checkbox" name="${name}" ${checked ? 'checked' : ''}>`;
+// Function to create a checkbox with an event listener
+function createCheckbox(id, checked, updateFunction) {
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = id;
+    checkbox.checked = checked;
+    checkbox.addEventListener('change', () => updateFunction(checkbox.checked));
+    return checkbox;
 }
 
 function displayCharacterSheet(data) {
     const container = document.getElementById('sheetContainer');
     container.innerHTML = ''; // Clear the container before rendering new data
 
-    // Calculate Proficiency Bonus (only once)
+    // Calculate Proficiency Bonus
     const proficiencyBonus = Math.ceil(data.main.core.level / 4) + 1;
 
-    // Function to create section with title and content
     function createSection(title, content) {
         const section = document.createElement('div');
         section.classList.add('section');
-        section.innerHTML = `<h3>${title}</h3>${content}`;
+        section.innerHTML = `<h3>${title}</h3>`;
+        section.appendChild(content);
         return section;
     }
 
     // Core Information
-    let coreInfo = '<table>';
+    let coreInfo = document.createElement('table');
     for (const key in data.main.core) {
-        coreInfo += `<tr><th>${formatKey(key)}</th><td>${data.main.core[key]}</td></tr>`;
+        let row = document.createElement('tr');
+        row.innerHTML = `<th>${formatKey(key)}</th><td>${data.main.core[key]}</td>`;
+        coreInfo.appendChild(row);
     }
-    coreInfo += `<tr><th>Proficiency Bonus</th><td>${proficiencyBonus}</td></tr>`;
-    coreInfo += '</table>';
+    coreInfo.innerHTML += `<tr><th>Proficiency Bonus</th><td>${proficiencyBonus}</td></tr>`;
     container.appendChild(createSection('Core Information', coreInfo));
 
     // Combat Stats
-    let combatInfo = '<table>';
+    let combatInfo = document.createElement('table');
     for (const key in data.main.combat) {
+        let row = document.createElement('tr');
         if (key === 'deathSaves') {
-            combatInfo += `<tr><th>Death Saves</th><td>Success: ${createCheckbox('deathSuccess', data.main.combat.deathSaves.success)} Failure: ${createCheckbox('deathFailure', data.main.combat.deathSaves.failure)}</td></tr>`;
+            let cell = document.createElement('td');
+            cell.innerHTML = `Success: `;
+            cell.appendChild(createCheckbox('deathSuccess', data.main.combat.deathSaves.success, (checked) => {
+                data.main.combat.deathSaves.success = checked ? 1 : 0;
+            }));
+            cell.innerHTML += ` Failure: `;
+            cell.appendChild(createCheckbox('deathFailure', data.main.combat.deathSaves.failure, (checked) => {
+                data.main.combat.deathSaves.failure = checked ? 1 : 0;
+            }));
+            row.innerHTML = `<th>Death Saves</th>`;
+            row.appendChild(cell);
         } else if (key === 'ammunition') {
-            combatInfo += `<tr><th>Ammunition</th><td>Bullets: ${data.main.combat.ammunition.bullets}<br>Arrows: ${data.main.combat.ammunition.arrows}</td></tr>`;
+            row.innerHTML = `<th>Ammunition</th><td>Bullets: ${data.main.combat.ammunition.bullets} | Arrows: ${data.main.combat.ammunition.arrows}</td>`;
         } else {
-            combatInfo += `<tr><th>${formatKey(key)}</th><td>${data.main.combat[key]}</td></tr>`;
+            row.innerHTML = `<th>${formatKey(key)}</th><td>${data.main.combat[key]}</td>`;
         }
+        combatInfo.appendChild(row);
     }
-    combatInfo += '</table>';
     container.appendChild(createSection('Combat Stats', combatInfo));
 
     // Ability Scores
-    let statsInfo = '<table>';
+    let statsInfo = document.createElement('table');
     for (const key in data.main.stats) {
-        const score = data.main.stats[key]?.score || 0; // Default to 0 if score is missing
+        const score = data.main.stats[key]?.score || 0;
         const modifier = Math.floor((score - 10) / 2);
-        statsInfo += `<tr><th>${formatKey(key)}</th></tr><tr><td>${score}</td></tr><tr><td>${modifier >= 0 ? '+' : ''}${modifier}</td></tr>`;
+        let row = document.createElement('tr');
+        row.innerHTML = `<th>${formatKey(key)}</th><td>${score} (${modifier >= 0 ? '+' : ''}${modifier})</td>`;
+        statsInfo.appendChild(row);
     }
-    statsInfo += '</table>';
     container.appendChild(createSection('Ability Scores', statsInfo));
 
     // Saving Throws
-    let savingThrowsInfo = '<table>';
+    let savingThrowsInfo = document.createElement('table');
     for (const key in data.main.stats) {
-        savingThrowsInfo += `<tr><th>${formatKey(key)}</th><td>Proficiency: ${data.main.stats[key].savingProf}, Misc: ${data.main.stats[key].savingMisc}</td></tr>`;
+        let row = document.createElement('tr');
+        row.innerHTML = `<th>${formatKey(key)}</th><td>Proficiency: ${data.main.stats[key].savingProf}, Misc: ${data.main.stats[key].savingMisc}</td>`;
+        savingThrowsInfo.appendChild(row);
     }
-    savingThrowsInfo += '</table>';
     container.appendChild(createSection('Saving Throws', savingThrowsInfo));
 
-    // Skills Section
-    let skillsInfo = '<table>';
-    const skillsList = [
-        'acrobatics', 'animalHandling', 'arcana', 'athletics', 'deception', 'history', 'insight', 'intimidation',
-        'investigation', 'medicine', 'nature', 'perception', 'performance', 'persuasion', 'religion',
-        'sleightOfHand', 'stealth', 'survival'
-    ];
+    // Skills Section with Proficiency Checkbox
+    let skillsInfo = document.createElement('table');
+    const skillsList = {
+        'acrobatics': 'dexterity', 'animalHandling': 'wisdom', 'arcana': 'intelligence',
+        'athletics': 'strength', 'deception': 'charisma', 'history': 'intelligence',
+        'insight': 'wisdom', 'intimidation': 'charisma', 'investigation': 'intelligence',
+        'medicine': 'wisdom', 'nature': 'intelligence', 'perception': 'wisdom',
+        'performance': 'charisma', 'persuasion': 'charisma', 'religion': 'intelligence',
+        'sleightOfHand': 'dexterity', 'stealth': 'dexterity', 'survival': 'wisdom'
+    };
 
-    skillsList.forEach(skill => {
-        const score = data.main.stats[skill]?.score || 0; // Default to 0 if score is missing
+    for (const skill in skillsList) {
+        const stat = skillsList[skill];
+        const score = data.main.stats[stat]?.score || 0;
         const modifier = Math.floor((score - 10) / 2);
-        const proficiency = data.main.skillsprof[skill] ? proficiencyBonus : 0;
-        const skillValue = modifier + proficiency;
         const isProficient = data.main.skillsprof[skill] === 1;
+        const proficiency = isProficient ? proficiencyBonus : 0;
+        const skillValue = modifier + proficiency;
 
-        skillsInfo += `
-            <tr>
-                <th>${formatKey(skill)}</th>
-                <td>
-                    ${modifier >= 0 ? '+' : ''}${modifier} + ${proficiency} 
-                    = ${skillValue >= 0 ? '+' : ''}${skillValue}
-                    <br>
-                    Proficient: ${createCheckbox(skill, isProficient)}
-                </td>
-            </tr>
-        `;
-    });
+        let row = document.createElement('tr');
+        let cell = document.createElement('td');
+        cell.innerHTML = `${modifier >= 0 ? '+' : ''}${modifier} + ${proficiency} = ${skillValue >= 0 ? '+' : ''}${skillValue}`;
 
-    skillsInfo += '</table>';
+        let checkbox = createCheckbox(`prof_${skill}`, isProficient, (checked) => {
+            data.main.skillsprof[skill] = checked ? 1 : 0;
+            displayCharacterSheet(data); // Re-render sheet after change
+        });
+
+        row.innerHTML = `<th>${formatKey(skill)}</th>`;
+        cell.appendChild(document.createTextNode(' Proficient: '));
+        cell.appendChild(checkbox);
+        row.appendChild(cell);
+        skillsInfo.appendChild(row);
+    }
+
     container.appendChild(createSection('Skills', skillsInfo));
 
     // Weapons Section
-    let weaponsInfo = '<table>';
+    let weaponsInfo = document.createElement('table');
     for (const weapon in data.main.weapons) {
         const w = data.main.weapons[weapon];
-        weaponsInfo += `<tr><th>${weapon}</th><td>Hit: ${w.hit}, Damage: ${w.damage.diceAmount}${w.damage.dice} + ${w.damage.bonusDamage}, Type: ${w.type}</td></tr>`;
+        let row = document.createElement('tr');
+        row.innerHTML = `<th>${weapon}</th><td>Hit: ${w.hit}, Damage: ${w.damage.diceAmount}${w.damage.dice} + ${w.damage.bonusDamage}, Type: ${w.type}</td>`;
+        weaponsInfo.appendChild(row);
     }
-    weaponsInfo += '</table>';
     container.appendChild(createSection('Weapons', weaponsInfo));
 }
